@@ -1,0 +1,153 @@
+/* ===== CSS Reset & Design Tokens ===== */
+:root {
+  /* Colors - Light */
+  --bg: #fdfcf9;
+  --bg-card: #ffffff;
+  --text: #2c2c2c;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --heading: #111827;
+  --accent: #1b365d;
+  --accent-light: rgba(27, 54, 93, 0.08);
+  --accent-border: rgba(27, 54, 93, 0.2);
+  --border: #e8e3d9;
+  --border-light: #f0ece4;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --tag-bg: #f3efe8;
+  --tag-text: #6b5e4a;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans SC', sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Consolas, monospace;
+
+  /* Spacing */
+  --max-width: 720px;
+  --header-height: 60px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* Transitions */
+  --transition: 0.2s ease;
+}
+
+/* ===== Dark Mode ===== */
+/* System preference (auto) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1a1a1c;
+    --bg-card: #222225;
+    --text: #d1d5db;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --heading: #f3f4f6;
+    --accent: #8eb8e5;
+    --accent-light: rgba(142, 184, 229, 0.12);
+    --accent-border: rgba(142, 184, 229, 0.3);
+    --border: #2e2e32;
+    --border-light: #35353a;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
+    --tag-bg: #2a2a2e;
+    --tag-text: #a89f8a;
+  }
+}
+
+/* Manual toggle override — works regardless of system preference */
+:root[data-theme='dark'] {
+  --bg: #1a1a1c;
+  --bg-card: #222225;
+  --text: #d1d5db;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --heading: #f3f4f6;
+  --accent: #8eb8e5;
+  --accent-light: rgba(142, 184, 229, 0.12);
+  --accent-border: rgba(142, 184, 229, 0.3);
+  --border: #2e2e32;
+  --border-light: #35353a;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --tag-bg: #2a2a2e;
+  --tag-text: #a89f8a;
+}
+
+/* ===== Base Styles ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--heading);
+  line-height: 1.35;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+::selection {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ===== Layout Container ===== */
+#app {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  #app {
+    padding: 0 16px;
+  }
+}

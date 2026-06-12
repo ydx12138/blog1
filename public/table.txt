@@ -1,0 +1,47 @@
+-- 文章表
+CREATE TABLE articles (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+    title VARCHAR(200) NOT NULL COMMENT '标题',
+    summary VARCHAR(500) DEFAULT '' COMMENT '摘要',
+    content LONGTEXT COMMENT '正文',
+    cover VARCHAR(255) DEFAULT '' COMMENT '封面',
+    category_id BIGINT COMMENT '分类ID',
+    author_id BIGINT COMMENT '作者ID',
+    view_count INT DEFAULT 0 COMMENT '浏览量',
+    like_count INT DEFAULT 0 COMMENT '点赞量',
+    comment_count INT DEFAULT 0 COMMENT '评论数',
+    status TINYINT DEFAULT 1 COMMENT '1草稿 2发布',
+    publish_time DATETIME NULL COMMENT '发布时间',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_category(category_id),
+    INDEX idx_publish_time(publish_time)
+);
+
+-- 分类表
+CREATE TABLE categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分类ID',
+    name VARCHAR(50) NOT NULL COMMENT '分类名称',
+    description VARCHAR(255) DEFAULT '' COMMENT '分类描述',
+    sort INT DEFAULT 0 COMMENT '排序值，值越大越靠前',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='文章分类表';
+
+-- 标签表
+CREATE TABLE tags (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '标签ID',
+    name VARCHAR(50) NOT NULL UNIQUE COMMENT '标签名称',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='文章标签表';
+
+-- 文章标签关联表
+CREATE TABLE article_tags (
+    article_id BIGINT NOT NULL COMMENT '文章ID',
+    tag_id BIGINT NOT NULL COMMENT '标签ID',
+) COMMENT='文章标签关联表';
+
