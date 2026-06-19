@@ -39,6 +39,19 @@ CREATE TABLE tags (
         ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) COMMENT='文章标签表';
 
+-- 用户表
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    password VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
+    email VARCHAR(100) DEFAULT '' COMMENT '邮箱',
+    avatar VARCHAR(255) DEFAULT '' COMMENT '头像',
+    bio VARCHAR(500) DEFAULT '' COMMENT '个人简介',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT='用户表';
+
 -- 文章标签关联表
 CREATE TABLE article_tags (
     article_id BIGINT NOT NULL COMMENT '文章ID',

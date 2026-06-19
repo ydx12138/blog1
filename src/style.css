@@ -132,12 +132,20 @@ img {
 
 /* ===== Layout Container ===== */
 #app {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 24px;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+}
+
+/* 侧边栏占位 */
+#app {
+  padding-left: 200px;
+}
+
+/* 主内容区 — 紧邻侧边栏，撑满右侧全部空间 */
+.main-content {
+  flex: 1;
+  padding: 0 48px 0 40px;
+  min-width: 0;
 }
 
 /* ===== Responsive ===== */
@@ -148,6 +156,10 @@ img {
   }
 
   #app {
+    padding-left: 0;
+  }
+
+  .main-content {
     padding: 0 16px;
   }
 }

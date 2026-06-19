@@ -1,23 +1,20 @@
 <template>
   <div class="about-page">
-    <h1 class="page-title">关于</h1>
+    <!-- 个人信息 — 原首页内容 -->
+    <ProfileSection />
+
+    <div class="section-divider"></div>
+
+    <!-- 关于正文 -->
+    <h1 class="page-title">关于本站</h1>
     <div class="about-content">
       <p>
-        你好，我是 <strong>{{ site.author.name }}</strong>，一名前端工程师，目前生活在{{ site.author.location }}。
-      </p>
-      <p>
-        我是
-        <a href="https://github.com/tw93/Pake" target="_blank" rel="noopener">Pake</a>、
-        <a href="https://github.com/tw93/MiaoYan" target="_blank" rel="noopener">MiaoYan</a>、
-        <a href="https://github.com/alibaba/x-render" target="_blank" rel="noopener">XRender</a>
-        等开源项目的作者。
+        你好，我是 <strong>{{ site.author.name }}</strong>，一名 Go 工程师，目前生活在{{ site.author.location }}。
       </p>
       <p>
         我喜欢简洁的设计、高效的开发工具，和一切能让工作变得更优雅的事物。
-        这个博客记录我在前端开发、开源项目和个人成长方面的心得。
+        这个博客记录我在后端开发、开源项目和个人成长方面的心得。
       </p>
-
-      <h2>关于本站</h2>
       <p>
         本博客使用 Vue 3 + Vite 构建，设计风格参考了
         <a href="https://github.com/tw93/tw93.github.io" target="_blank" rel="noopener">cosy-jekyll-theme</a>，
@@ -43,22 +40,29 @@
 
 <script setup>
 import { site } from '../data/site.js'
+import ProfileSection from '../components/ProfileSection.vue'
 </script>
 
 <style scoped>
 .about-page {
   padding: 32px 0;
-  max-width: 680px;
+  text-align: center;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 24px 0 40px;
 }
 
 .page-title {
   font-family: var(--font-serif);
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--heading);
   letter-spacing: -1px;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
   border-bottom: 2px solid var(--accent);
 }
 
@@ -66,6 +70,7 @@ import { site } from '../data/site.js'
   font-size: 16px;
   line-height: 1.85;
   color: var(--text);
+  text-align: left;
 }
 
 .about-content p {
@@ -78,6 +83,7 @@ import { site } from '../data/site.js'
   font-weight: 600;
   color: var(--heading);
   margin: 40px 0 16px;
+  text-align: center;
 }
 
 .contact-links {
@@ -85,6 +91,7 @@ import { site } from '../data/site.js'
   flex-wrap: wrap;
   gap: 16px;
   margin-top: 8px;
+  justify-content: center;
 }
 
 .contact-link {
@@ -109,7 +116,7 @@ import { site } from '../data/site.js'
 
 @media (max-width: 768px) {
   .page-title {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .about-content {

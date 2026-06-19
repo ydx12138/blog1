@@ -12,11 +12,10 @@ export const site = {
     email: 'tw93@qq.com',
   },
   nav: [
-    { label: '首页', path: '/' },
+    { label: '关于', path: '/' },
     { label: '文章', path: '/posts' },
     { label: '分类', path: '/categories' },
     { label: '项目', path: '/projects' },
-    { label: '关于', path: '/about' },
   ],
   socialLinks: [
     {
