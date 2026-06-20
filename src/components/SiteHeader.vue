@@ -49,11 +49,11 @@
       <div v-else class="user-dropdown" ref="dropdownRef">
         <button class="btn-user" @click="toggleDropdown">
           <span class="user-avatar">{{ userInitial }}</span>
-          <span class="user-name">{{ user?.username }}</span>
+          <span class="user-name">{{ user?.nickname || user?.email }}</span>
         </button>
         <div class="dropdown-menu" v-if="dropdownOpen" @click.stop>
           <div class="dropdown-header">
-            <span class="dropdown-name">{{ user?.username }}</span>
+            <span class="dropdown-name">{{ user?.nickname }}</span>
             <span class="dropdown-email">{{ user?.email }}</span>
           </div>
           <div class="dropdown-divider"></div>
@@ -108,7 +108,8 @@ onUnmounted(() => { if (mediaQuery) mediaQuery.removeEventListener('change', () 
 
 // ---- 认证 ----
 const showAuthModal = ref(false)
-const userInitial = computed(() => user.value ? user.value.username.charAt(0).toUpperCase() : '')
+const userInitial = computed(() => user.value ? (user.value.nickname || user.value.email).charAt(0).toUpperCase() : '')
+function handleShowAuth() { showAuthModal.value = true }
 
 // ---- 下拉 ----
 const dropdownOpen = ref(false)
@@ -116,8 +117,14 @@ const dropdownRef = ref(null)
 function toggleDropdown() { dropdownOpen.value = !dropdownOpen.value }
 function handleLogout() { logout(); dropdownOpen.value = false }
 function handleClickOutside(e) { if (dropdownRef.value && !dropdownRef.value.contains(e.target)) dropdownOpen.value = false }
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  window.addEventListener('show-auth-modal', handleShowAuth)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('show-auth-modal', handleShowAuth)
+})
 </script>
 
 <style scoped>
