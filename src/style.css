@@ -1,31 +1,34 @@
-/* ===== CSS Reset & Design Tokens ===== */
+/* ===== CSS Design Tokens — 温润极简风 ===== */
 :root {
-  /* Colors - Light */
-  --bg: #fdfcf9;
-  --bg-card: #ffffff;
-  --text: #2c2c2c;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --heading: #111827;
-  --accent: #1b365d;
-  --accent-light: rgba(27, 54, 93, 0.08);
-  --accent-border: rgba(27, 54, 93, 0.2);
-  --border: #e8e3d9;
-  --border-light: #f0ece4;
+  /* Colors - Light (暖纸色调) */
+  --bg: #fefdf9;
+  --bg-card: #faf9f4;
+  --text: #3c3c3a;
+  --text-secondary: #8c8a80;
+  --text-muted: #b0aea5;
+  --heading: #1a1a18;
+  --accent: #c45a2c;
+  --accent-hover: #a84a20;
+  --accent-light: rgba(196, 90, 44, 0.07);
+  --accent-border: rgba(196, 90, 44, 0.18);
+  --border: #e8e4da;
+  --border-light: #f0ece2;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --tag-bg: #f3efe8;
-  --tag-text: #6b5e4a;
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --tag-bg: #f3efe6;
+  --tag-text: #8c7a60;
+  --danger: #d14343;
+  --danger-light: #fef2f2;
 
-  /* Typography */
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, 'Noto Sans SC', sans-serif;
-  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', Georgia, 'Times New Roman', serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Consolas, monospace;
+  /* Typography - 中文优先，回退系统字体 */
+  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'PingFang SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, Consolas, monospace;
 
   /* Spacing */
   --max-width: 720px;
-  --header-height: 60px;
+  --sidebar-width: 200px;
 
   /* Radius */
   --radius-sm: 6px;
@@ -34,50 +37,58 @@
 
   /* Transitions */
   --transition: 0.2s ease;
+  --transition-slow: 0.35s ease;
 }
 
-/* ===== Dark Mode ===== */
-/* System preference (auto) */
+/* ===== Dark Mode (System) ===== */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #1a1a1c;
-    --bg-card: #222225;
-    --text: #d1d5db;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --heading: #f3f4f6;
-    --accent: #8eb8e5;
-    --accent-light: rgba(142, 184, 229, 0.12);
-    --accent-border: rgba(142, 184, 229, 0.3);
-    --border: #2e2e32;
-    --border-light: #35353a;
+    --bg: #1e1e1c;
+    --bg-card: #262623;
+    --text: #d4d4cc;
+    --text-secondary: #9c9c94;
+    --text-muted: #707068;
+    --heading: #f0f0ea;
+    --accent: #e8945c;
+    --accent-hover: #f0a870;
+    --accent-light: rgba(232, 148, 92, 0.10);
+    --accent-border: rgba(232, 148, 92, 0.22);
+    --border: #333330;
+    --border-light: #3a3a36;
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
-    --tag-bg: #2a2a2e;
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
+    --tag-bg: #2a2a28;
     --tag-text: #a89f8a;
+    --danger: #f87171;
+    --danger-light: #3b1a1a;
   }
 }
 
-/* Manual toggle override — works regardless of system preference */
+/* ===== Dark Mode (Manual) ===== */
 :root[data-theme='dark'] {
-  --bg: #1a1a1c;
-  --bg-card: #222225;
-  --text: #d1d5db;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --heading: #f3f4f6;
-  --accent: #8eb8e5;
-  --accent-light: rgba(142, 184, 229, 0.12);
-  --accent-border: rgba(142, 184, 229, 0.3);
-  --border: #2e2e32;
-  --border-light: #35353a;
+  --bg: #1e1e1c;
+  --bg-card: #262623;
+  --text: #d4d4cc;
+  --text-secondary: #9c9c94;
+  --text-muted: #707068;
+  --heading: #f0f0ea;
+  --accent: #e8945c;
+  --accent-hover: #f0a870;
+  --accent-light: rgba(232, 148, 92, 0.10);
+  --accent-border: rgba(232, 148, 92, 0.22);
+  --border: #333330;
+  --border-light: #3a3a36;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --tag-bg: #2a2a2e;
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --tag-bg: #2a2a28;
   --tag-text: #a89f8a;
+  --danger: #f87171;
+  --danger-light: #3b1a1a;
 }
 
-/* ===== Base Styles ===== */
+/* ===== Base Reset ===== */
 *,
 *::before,
 *::after {
@@ -107,10 +118,8 @@ a {
   text-decoration: none;
   transition: color var(--transition);
 }
-
 a:hover {
-  color: var(--accent);
-  opacity: 0.8;
+  color: var(--accent-hover);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -130,18 +139,21 @@ img {
   color: var(--accent);
 }
 
-/* ===== Layout Container ===== */
+/* ===== Layout ===== */
 #app {
   min-height: 100vh;
   display: flex;
 }
 
-/* 侧边栏占位 */
-#app {
-  padding-left: 200px;
+.app-inner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+.app-inner.has-sidebar {
+  padding-left: var(--sidebar-width);
 }
 
-/* 主内容区 — 紧邻侧边栏，撑满右侧全部空间 */
 .main-content {
   flex: 1;
   padding: 0 48px 0 40px;
@@ -150,16 +162,7 @@ img {
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-  body {
-    font-size: 15px;
-    line-height: 1.65;
-  }
-
-  #app {
-    padding-left: 0;
-  }
-
-  .main-content {
-    padding: 0 16px;
-  }
+  body { font-size: 15px; line-height: 1.65; }
+  .app-inner.has-sidebar { padding-left: 0; }
+  .main-content { padding: 0 16px; }
 }

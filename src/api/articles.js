@@ -11,3 +11,11 @@ export function getArticleDetail(id) {
 export function searchArticles(keyword) {
   return request('GET', `/api/articles/search?keyword=${encodeURIComponent(keyword)}`)
 }
+
+export function likeArticle(articleId) {
+  return request('POST', '/api/articles/like', { article_id: articleId })
+}
+
+export function fetchTags() {
+  return request('GET', '/api/tags')
+}

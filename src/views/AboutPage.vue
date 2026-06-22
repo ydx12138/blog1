@@ -1,13 +1,9 @@
 <template>
   <div class="about-page">
-    <!-- 个人信息 — 原首页内容 -->
     <ProfileSection />
 
-    <div class="section-divider"></div>
-
-    <!-- 关于正文 -->
-    <h1 class="page-title">关于本站</h1>
     <div class="about-content">
+      <h2 class="section-title">关于我</h2>
       <p>
         你好，我是 <strong>{{ site.author.name }}</strong>，一名 Go 工程师，目前生活在{{ site.author.location }}。
       </p>
@@ -16,22 +12,19 @@
         这个博客记录我在后端开发、开源项目和个人成长方面的心得。
       </p>
       <p>
-        本博客使用 Vue 3 + Vite 构建，设计风格参考了
-        <a href="https://github.com/tw93/tw93.github.io" target="_blank" rel="noopener">cosy-jekyll-theme</a>，
+        本博客使用 Vue 3 + Vite 构建前端，Go + Gin 构建后端 API，
         追求简洁、温暖、易读的阅读体验。
       </p>
 
-      <h2>联系我</h2>
+      <h2 class="section-title">联系我</h2>
       <div class="contact-links">
-        <a
-          v-for="link in site.socialLinks"
-          :key="link.name"
-          :href="link.url"
-          class="contact-link"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {{ link.name }} →
+        <a :href="site.author.github" target="_blank" rel="noopener noreferrer" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a v-if="site.author.email" :href="'mailto:' + site.author.email" class="contact-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
         </a>
       </div>
     </div>
@@ -45,82 +38,62 @@ import ProfileSection from '../components/ProfileSection.vue'
 
 <style scoped>
 .about-page {
-  padding: 32px 0;
-  text-align: center;
-}
-
-.section-divider {
-  height: 1px;
-  background: var(--border-light);
-  margin: 24px 0 40px;
-}
-
-.page-title {
-  font-family: var(--font-serif);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--heading);
-  letter-spacing: -1px;
-  margin-bottom: 24px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--accent);
+  padding: 0 0 40px;
 }
 
 .about-content {
-  font-size: 16px;
-  line-height: 1.85;
-  color: var(--text);
-  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
 }
 
-.about-content p {
-  margin-bottom: 20px;
-}
-
-.about-content h2 {
+.section-title {
   font-family: var(--font-serif);
   font-size: 22px;
   font-weight: 600;
   color: var(--heading);
-  margin: 40px 0 16px;
+  margin: 32px 0 16px;
   text-align: center;
+}
+
+.about-content p {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text);
+  margin-bottom: 14px;
 }
 
 .contact-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 14px;
   justify-content: center;
+  margin-top: 8px;
 }
 
 .contact-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 8px 18px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--text-secondary);
+  text-decoration: none;
   transition: all var(--transition);
 }
-
 .contact-link:hover {
   color: var(--accent);
   border-color: var(--accent-border);
-  box-shadow: var(--shadow);
   opacity: 1;
 }
 
 @media (max-width: 768px) {
-  .page-title {
-    font-size: 24px;
-  }
-
-  .about-content {
-    font-size: 15px;
-  }
+  .about-content { padding: 8px 4px 0; }
+  .section-title { font-size: 20px; }
+  .about-content p { font-size: 14px; }
 }
 </style>

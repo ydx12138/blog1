@@ -5,12 +5,12 @@
     <table class="data-table" v-else-if="drafts.length">
       <thead><tr><th>ID</th><th>标题</th><th>创建时间</th><th>操作</th></tr></thead>
       <tbody>
-        <tr v-for="a in drafts" :key="a.id">
+        <tr v-for="a in drafts" :key="a.id" :class="{ 'row-link': a.status === 2 }" @click="a.status === 2 && openPost(a.id)">
           <td>{{ a.id }}</td>
           <td class="title-cell">{{ a.title }}</td>
           <td>{{ formatDate(a.CreatedAt) }}</td>
-          <td class="actions">
-            <router-link :to="`/admin/articles/${a.id}`" class="btn-sm">编辑</router-link>
+          <td class="actions" @click.stop>
+            <router-link :to="`/admin/articles/${a.id}/edit`" class="btn-sm">编辑</router-link>
             <button @click="doPublish(a.id)" class="btn-sm btn-green">发布</button>
             <button @click="doDelete(a.id)" class="btn-sm btn-danger">删除</button>
           </td>
@@ -29,6 +29,7 @@ const drafts = ref([])
 const loading = ref(false)
 
 function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('zh-CN') }
+function openPost(id) { window.open(`/posts/${id}`, '_blank') }
 async function fetchData() { loading.value = true; try { const d = await getDrafts(); drafts.value = d.list || [] } catch (e) { console.error(e) } loading.value = false }
 async function doPublish(id) { try { await publishArticle(id); fetchData() } catch (e) { alert(e.message) } }
 async function doDelete(id) { if (confirm('确定删除？')) { try { await deleteArticle(id); fetchData() } catch (e) { alert(e.message) } } }
@@ -41,6 +42,8 @@ onMounted(fetchData)
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
 .data-table th { font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; }
+.row-link { cursor: pointer; transition: background var(--transition); }
+.row-link:hover { background: var(--accent-light); }
 .title-cell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .actions { display: flex; gap: 6px; }
 .btn-sm { padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); font-size: 12px; cursor: pointer; text-decoration: none; transition: all var(--transition); }

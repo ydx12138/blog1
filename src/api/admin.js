@@ -22,16 +22,18 @@ export function createArticle(data) {
   return request('POST', `${PREFIX}/articles`, data, ADMIN)
 }
 
+function numID(id) { return Number(id) }
+
 export function updateArticle(id, data) {
-  return request('PUT', `${PREFIX}/articles/${id}`, { ...data, id }, ADMIN)
+  return request('PUT', `${PREFIX}/articles/${id}`, { ...data, id: numID(id) }, ADMIN)
 }
 
 export function deleteArticle(id) {
-  return request('DELETE', `${PREFIX}/articles/${id}`, { id }, ADMIN)
+  return request('DELETE', `${PREFIX}/articles/${id}`, { id: numID(id) }, ADMIN)
 }
 
 export function publishArticle(id) {
-  return request('PUT', `${PREFIX}/articles/${id}/publish`, { id }, ADMIN)
+  return request('PUT', `${PREFIX}/articles/${id}/publish`, { id: numID(id) }, ADMIN)
 }
 
 // Drafts
@@ -52,15 +54,15 @@ export function getPendingComments(page = 1, pageSize = 10) {
 }
 
 export function approveComment(id) {
-  return request('PUT', `${PREFIX}/comments/${id}/approve`, { id }, ADMIN)
+  return request('PUT', `${PREFIX}/comments/${id}/approve`, { id: numID(id) }, ADMIN)
 }
 
 export function rejectComment(id) {
-  return request('PUT', `${PREFIX}/comments/${id}/reject`, { id }, ADMIN)
+  return request('PUT', `${PREFIX}/comments/${id}/reject`, { id: numID(id) }, ADMIN)
 }
 
 export function deleteComment(id) {
-  return request('DELETE', `${PREFIX}/comments/${id}`, { id }, ADMIN)
+  return request('DELETE', `${PREFIX}/comments/${id}`, { id: numID(id) }, ADMIN)
 }
 
 // Users
@@ -69,13 +71,13 @@ export function getUsers(page = 1, pageSize = 10) {
 }
 
 export function banUser(id) {
-  return request('PUT', `${PREFIX}/users/${id}/ban`, { id, status: 2 }, ADMIN)
+  return request('PUT', `${PREFIX}/users/${id}/ban`, { id: numID(id), status: 2 }, ADMIN)
 }
 
 export function unbanUser(id) {
-  return request('PUT', `${PREFIX}/users/${id}/unban`, { id, status: 1 }, ADMIN)
+  return request('PUT', `${PREFIX}/users/${id}/unban`, { id: numID(id), status: 1 }, ADMIN)
 }
 
 export function deleteUser(id) {
-  return request('DELETE', `${PREFIX}/users/${id}`, { id }, ADMIN)
+  return request('DELETE', `${PREFIX}/users/${id}`, { id: numID(id) }, ADMIN)
 }
