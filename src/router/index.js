@@ -15,6 +15,8 @@ const routes = [
   // 全屏编辑页（无侧边栏）
   { path: '/admin/articles/new', name: 'admin-article-new', component: () => import('../views/admin/ArticleEdit.vue') },
   { path: '/admin/articles/:id/edit', name: 'admin-article-edit', component: () => import('../views/admin/ArticleEdit.vue') },
+  // 管理员预览
+  { path: '/admin/articles/:id/preview', name: 'admin-article-preview', component: () => import('../views/admin/ArticlePreview.vue') },
 
   // 管理后台（含侧边栏）
   {

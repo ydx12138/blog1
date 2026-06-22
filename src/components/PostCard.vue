@@ -1,7 +1,7 @@
 <template>
-  <article class="post-card">
+  <article class="post-card" @click="goPost">
     <div class="post-body">
-      <router-link :to="`/posts/${post.id}`" class="post-title">{{ post.title }}</router-link>
+      <span class="post-title">{{ post.title }}</span>
       <p class="post-excerpt" v-if="post.summary">{{ post.summary }}</p>
       <div class="post-meta">
         <time class="post-date" :datetime="post.created_at">{{ formattedDate }}</time>
@@ -35,10 +35,16 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
   post: { type: Object, required: true },
 })
+
+function goPost() {
+  router.push(`/posts/${props.post.id}`)
+}
 
 const formattedDate = computed(() => {
   const d = new Date(props.post.created_at)
@@ -65,8 +71,10 @@ function fmt(n) {
   padding: 24px 0;
   border-bottom: 1px solid var(--border-light);
   transition: all var(--transition);
+  cursor: pointer;
 }
 .post-card:first-child { padding-top: 0; }
+.post-card:hover { background: linear-gradient(to right, transparent, var(--accent-light)); }
 
 .post-title {
   font-family: var(--font-serif);
@@ -74,12 +82,10 @@ function fmt(n) {
   font-weight: 600;
   color: var(--heading);
   line-height: 1.4;
-  text-decoration: none;
   display: inline-block;
-  transition: color var(--transition);
   margin-bottom: 6px;
 }
-.post-title:hover { color: var(--accent); }
+.post-card:hover .post-title { color: var(--accent); }
 
 .post-excerpt {
   font-size: 14px;

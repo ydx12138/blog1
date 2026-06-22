@@ -1,0 +1,161 @@
+<template>
+  <div class="admin-preview">
+    <header class="preview-topbar">
+      <router-link to="/admin/articles" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        返回文章管理
+      </router-link>
+      <span class="preview-badge">管理员预览</span>
+    </header>
+
+    <div class="preview-loading" v-if="loading">加载中...</div>
+    <div class="preview-error" v-else-if="error">{{ error }}</div>
+
+    <article class="preview-article" v-else-if="article">
+      <header class="post-header">
+        <span class="post-category" v-if="article.category_name">{{ article.category_name }}</span>
+        <h1 class="post-title">{{ article.title }}</h1>
+        <div class="post-meta">
+          <time>{{ formattedDate }}</time>
+          <span class="meta-sep">·</span>
+          <span>{{ article.view_count || 0 }} 次阅读</span>
+          <span class="meta-sep">·</span>
+          <span>{{ article.like_count || 0 }} 次点赞</span>
+          <span class="meta-sep">·</span>
+          <span>{{ article.comment_count || 0 }} 条评论</span>
+        </div>
+        <div class="post-tags" v-if="tags.length">
+          <span v-for="t in tags" :key="t" class="tag">{{ t }}</span>
+        </div>
+      </header>
+
+      <div class="post-body">
+        <div v-if="article.content_type === 1" class="rich-text" v-html="article.content"></div>
+        <MdPreview v-else-if="article.content_type === 2" :modelValue="article.content" />
+        <div v-else class="rich-text" v-html="article.content"></div>
+      </div>
+    </article>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { getAdminArticle } from '../../api/admin.js'
+import { MdPreview } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+
+const route = useRoute()
+const id = computed(() => Number(route.params.id))
+
+const article = ref(null)
+const loading = ref(false)
+const error = ref('')
+
+const formattedDate = computed(() => {
+  if (!article.value?.publish_time && !article.value?.created_at) return ''
+  const d = new Date(article.value.publish_time || article.value.created_at)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+})
+
+const tags = computed(() => {
+  if (!article.value?.tags) return []
+  if (Array.isArray(article.value.tags)) return article.value.tags
+  return article.value.tags.split(',').map(t => t.trim()).filter(Boolean)
+})
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    article.value = await getAdminArticle(id.value)
+  } catch (e) {
+    error.value = '加载失败：' + (e.message || '请确认后端服务已启动')
+  }
+  loading.value = false
+})
+</script>
+
+<style scoped>
+.admin-preview {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.preview-topbar {
+  display: flex; align-items: center; gap: 14px;
+  height: 48px; padding: 0 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-card);
+  position: sticky; top: 0; z-index: 10;
+}
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+  text-decoration: none; transition: color var(--transition);
+}
+.back-btn:hover { color: var(--accent); }
+.preview-badge {
+  font-size: 11px; padding: 2px 10px;
+  border-radius: 100px;
+  background: var(--accent-light); color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.preview-loading, .preview-error {
+  text-align: center; padding: 80px 0;
+  color: var(--text-muted); font-size: 14px;
+}
+.preview-error { color: var(--danger); }
+
+.preview-article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.post-header { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--border-light); }
+.post-category {
+  display: inline-block; font-size: 12px; padding: 3px 12px;
+  border-radius: 100px; background: var(--accent-light); color: var(--accent);
+  font-family: var(--font-mono); margin-bottom: 16px;
+}
+.post-title {
+  font-family: var(--font-serif); font-size: 34px; font-weight: 700;
+  color: var(--heading); line-height: 1.3; letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.post-meta {
+  font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+  margin-bottom: 12px;
+}
+.meta-sep { margin: 0 4px; }
+.post-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 11px; padding: 2px 10px; border-radius: 100px;
+  background: var(--tag-bg); color: var(--tag-text); font-family: var(--font-mono);
+}
+
+.post-body {
+  font-size: 17px; line-height: 1.85; color: var(--text);
+}
+.rich-text :deep(h1) { font-size: 28px; margin: 32px 0 16px; }
+.rich-text :deep(h2) { font-size: 22px; margin: 28px 0 14px; }
+.rich-text :deep(h3) { font-size: 18px; margin: 24px 0 12px; }
+.rich-text :deep(p) { margin-bottom: 16px; }
+.rich-text :deep(code) { background: var(--tag-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+.rich-text :deep(pre) { background: var(--tag-bg); padding: 16px; border-radius: var(--radius); overflow-x: auto; margin: 16px 0; }
+.rich-text :deep(blockquote) { border-left: 3px solid var(--accent); padding-left: 16px; color: var(--text-secondary); margin: 16px 0; }
+.rich-text :deep(img) { max-width: 100%; border-radius: var(--radius); margin: 12px 0; }
+.rich-text :deep(a) { color: var(--accent); text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .preview-topbar { padding: 0 12px; }
+  .preview-article { padding: 24px 16px; }
+  .post-title { font-size: 26px; }
+  .post-body { font-size: 16px; }
+}
+</style>

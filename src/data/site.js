@@ -7,7 +7,7 @@ export const site = {
     bio: 'Go开发者，热爱开源与写作。',
     location: '中国',
     github: 'https://github.com/ydx12138',
-    email: 'admin@blog.com',
+    email: '2675723732@qq.com',
   },
   nav: [
     { label: '首页', path: '/' },
