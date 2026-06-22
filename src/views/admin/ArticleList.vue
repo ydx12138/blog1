@@ -2,7 +2,6 @@
   <div class="article-list">
     <div class="page-header">
       <h1 class="page-title">文章管理</h1>
-      <router-link to="/admin/articles/new" class="btn-primary">+ 新建文章</router-link>
     </div>
 
     <div class="filter-bar">
@@ -91,8 +90,6 @@ onMounted(fetchData)
 <style scoped>
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .page-title { font-family: var(--font-serif); font-size: 28px; font-weight: 700; color: var(--heading); }
-.btn-primary { padding: 10px 20px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; font-size: 14px; text-decoration: none; font-weight: 500; transition: opacity var(--transition); }
-.btn-primary:hover { opacity: 0.9; }
 .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; }
 .search-input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-size: 14px; outline: none; }
 .search-input:focus { border-color: var(--accent-border); }

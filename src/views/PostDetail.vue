@@ -200,7 +200,7 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 </script>
 
 <style scoped>
-.post-detail-page { padding: 40px 0; max-width: 780px; }
+.post-detail-page { padding: 40px 0; max-width: 1200px; margin: 0 auto; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 6px;
@@ -226,6 +226,7 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
   font-family: var(--font-serif); font-size: 34px; font-weight: 700;
   color: var(--heading); line-height: 1.3; letter-spacing: -1px;
   margin-bottom: 12px;
+  word-break: break-word; overflow-wrap: break-word;
 }
 .post-meta {
   font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);

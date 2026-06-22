@@ -49,6 +49,16 @@ export function uploadImage(file) {
 }
 
 // Comments
+export function getAllComments(page = 1, pageSize = 10, keyword = '', type = '') {
+  let url = `${PREFIX}/comments?page=${page}&page_size=${pageSize}`
+  if (keyword) url += `&keyword=${encodeURIComponent(keyword)}&type=${type}`
+  return request('GET', url, null, ADMIN)
+}
+
+export function setCommentStatus(id, status) {
+  return request('PUT', `${PREFIX}/comments/${id}/status`, { status }, ADMIN)
+}
+
 export function getPendingComments(page = 1, pageSize = 10) {
   return request('GET', `${PREFIX}/comments/pending?page=${page}&page_size=${pageSize}`, null, ADMIN)
 }
@@ -66,8 +76,11 @@ export function deleteComment(id) {
 }
 
 // Users
-export function getUsers(page = 1, pageSize = 10) {
-  return request('GET', `${PREFIX}/users?page=${page}&page_size=${pageSize}`, null, ADMIN)
+export function getUsers(page = 1, pageSize = 10, keyword = '', status = '') {
+  let url = `${PREFIX}/users?page=${page}&page_size=${pageSize}`
+  if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`
+  if (status) url += `&status=${status}`
+  return request('GET', url, null, ADMIN)
 }
 
 export function banUser(id) {

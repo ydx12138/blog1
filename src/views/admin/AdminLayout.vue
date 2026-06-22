@@ -2,6 +2,7 @@
   <div class="admin-layout">
     <aside class="admin-sidebar">
       <router-link to="/admin" class="admin-logo">Blog Admin</router-link>
+      <router-link to="/admin/articles/new" class="btn-new-article">+ 新建文章</router-link>
       <nav class="admin-nav">
         <router-link to="/admin" exact-active-class="nav-active" class="nav-item">📊 数据面板</router-link>
         <router-link to="/admin/articles" active-class="nav-active" class="nav-item">📝 文章管理</router-link>
@@ -43,7 +44,9 @@ function handleLogout() {
 <style scoped>
 .admin-layout { display: flex; min-height: 100vh; }
 .admin-sidebar { width: 220px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
-.admin-logo { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--heading); text-decoration: none; margin-bottom: 32px; display: block; }
+.admin-logo { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--heading); text-decoration: none; display: block; }
+.btn-new-article { display: block; padding: 10px 12px; margin: 16px 0 20px; border: none; border-radius: var(--radius-sm); background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all var(--transition); }
+.btn-new-article:hover { opacity: 0.88; }
 .admin-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .nav-item { padding: 10px 12px; border-radius: var(--radius-sm); font-size: 14px; color: var(--text-secondary); text-decoration: none; transition: all var(--transition); }
 .nav-item:hover { background: var(--accent-light); color: var(--heading); }
