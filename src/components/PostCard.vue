@@ -1,5 +1,9 @@
 <template>
   <article class="post-card" @click="goPost">
+    <!-- 封面图 -->
+    <div class="post-cover" v-if="post.cover">
+      <img :src="post.cover" :alt="post.title" @error="onCoverError" />
+    </div>
     <div class="post-body">
       <span class="post-title">{{ post.title }}</span>
       <p class="post-excerpt" v-if="post.summary">{{ post.summary }}</p>
@@ -64,10 +68,16 @@ function fmt(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
   return String(n)
 }
+
+function onCoverError(e) {
+  e.target.parentElement.style.display = 'none'
+}
 </script>
 
 <style scoped>
 .post-card {
+  display: flex;
+  gap: 20px;
   padding: 24px 0;
   border-bottom: 1px solid var(--border-light);
   transition: all var(--transition);
@@ -75,6 +85,22 @@ function fmt(n) {
 }
 .post-card:first-child { padding-top: 0; }
 .post-card:hover { background: linear-gradient(to right, transparent, var(--accent-light)); }
+
+.post-cover {
+  flex-shrink: 0;
+  width: 180px;
+  height: 120px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.post-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.post-body { flex: 1; min-width: 0; }
 
 .post-title {
   font-family: var(--font-serif);
@@ -148,7 +174,8 @@ function fmt(n) {
 }
 
 @media (max-width: 768px) {
-  .post-card { padding: 18px 0; }
+  .post-card { flex-direction: column; gap: 12px; padding: 18px 0; }
+  .post-cover { width: 100%; height: 160px; }
   .post-title { font-size: 18px; }
   .post-stats { margin-left: 0; }
 }

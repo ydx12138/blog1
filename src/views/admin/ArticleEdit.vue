@@ -37,12 +37,14 @@
       <!-- 3. 内容 -->
       <div class="field">
         <label class="field-label">内容</label>
-        <div v-if="form.content_type === 1" class="richtext-editor">
-          <Toolbar :editor="richEditor" :defaultConfig="richToolbarConfig" mode="default" />
+        <div v-if="form.content_type === 1" class="richtext-editor" ref="editorWrapRef">
+          <div class="toolbar-wrap" :class="{ 'is-fixed': toolbarFixed }" :style="toolbarFixedStyle">
+            <Toolbar :editor="richEditor" :defaultConfig="richToolbarConfig" mode="default" />
+          </div>
           <Editor v-model="form.content" :defaultConfig="richEditorConfig" mode="default" @onCreated="onRichCreated" />
         </div>
         <div v-else class="markdown-editor">
-          <MdEditor v-model="form.content" language="zh-CN" />
+          <MdEditor v-model="form.content" language="zh-CN" @onUploadImg="onMdUploadImg" />
         </div>
       </div>
 
@@ -144,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, computed, shallowRef, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, shallowRef, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createArticle, updateArticle, getAdminArticle } from '../../api/admin.js'
 import { fetchTags } from '../../api/articles.js'
@@ -154,6 +156,7 @@ import ImageUpload from '../../components/ImageUpload.vue'
 
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import { uploadImage } from '../../api/admin.js'
 
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -179,6 +182,30 @@ const tagInput = ref('')
 const showTagPopup = ref(false)
 const loading = ref(false)
 const saving = ref(false)
+
+// 工具栏固定逻辑
+const editorWrapRef = ref(null)
+const toolbarFixed = ref(false)
+const toolbarFixedStyle = ref({})
+
+function onScroll() {
+  if (!editorWrapRef.value) return
+  const rect = editorWrapRef.value.getBoundingClientRect()
+  const toolbarH = 40
+  if (rect.top < 0 && rect.bottom > toolbarH) {
+    toolbarFixed.value = true
+    toolbarFixedStyle.value = {
+      position: 'fixed',
+      top: '0',
+      left: rect.left + 'px',
+      width: rect.width + 'px',
+      zIndex: 100,
+    }
+  } else {
+    toolbarFixed.value = false
+    toolbarFixedStyle.value = {}
+  }
+}
 
 // 当前已选标签
 const selectedTags = computed(() => {
@@ -210,10 +237,49 @@ function addCustomTag() {
 
 // wangEditor
 const richEditor = shallowRef(null)
-const richToolbarConfig = { excludeKeys: ['group-video'] }
-const richEditorConfig = { placeholder: '请输入内容...', MENU_CONF: {} }
+const richToolbarConfig = {
+  excludeKeys: ['group-video', 'fullScreen'],
+  toolbarKeys: [
+    'headerSelect',
+    'bold', 'underline', 'italic',
+    'color', 'bgColor',
+    'bulletedList', 'numberedList',
+    'justifyLeft', 'justifyCenter', 'justifyRight',
+    'insertLink', 'insertImage',
+    'blockquote', 'emotion',
+    'undo', 'redo',
+  ],
+}
+const richEditorConfig = {
+  placeholder: '请输入内容...',
+  MENU_CONF: {
+    uploadImage: {
+      customUpload(file, insertFn) {
+        uploadImage(file).then(data => {
+          insertFn(data.url, '', '')
+        }).catch(e => {
+          alert('图片上传失败：' + e.message)
+        })
+      },
+    },
+  },
+}
 
 function onRichCreated(editor) { richEditor.value = editor }
+
+// Markdown 编辑器图片上传
+async function onMdUploadImg(files, callback) {
+  const urls = []
+  for (const file of files) {
+    try {
+      const data = await uploadImage(file)
+      urls.push(data.url)
+    } catch (e) {
+      alert('图片上传失败：' + e.message)
+    }
+  }
+  callback(urls)
+}
 
 function switchEditor(type) {
   if (richEditor.value) { richEditor.value.destroy(); richEditor.value = null }
@@ -223,6 +289,7 @@ function switchEditor(type) {
 
 onBeforeUnmount(() => {
   if (richEditor.value) { richEditor.value.destroy(); richEditor.value = null }
+  window.removeEventListener('scroll', onScroll, true)
 })
 
 async function loadArticle() {
@@ -269,6 +336,7 @@ onMounted(async () => {
   } catch (e) { console.error(e) }
   try { allTags.value = await fetchTags() } catch (e) { console.error(e) }
   loadArticle()
+  window.addEventListener('scroll', onScroll, true)
 })
 </script>
 
@@ -478,9 +546,19 @@ onMounted(async () => {
 .richtext-editor {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
 }
-.richtext-editor :deep(.w-e-toolbar) { border-bottom: 1px solid var(--border); }
+.toolbar-wrap.is-fixed {
+  height: 40px;
+}
+.toolbar-wrap.is-fixed :deep(.w-e-toolbar) {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.richtext-editor :deep(.w-e-toolbar) {
+  border-bottom: 1px solid var(--border);
+  flex-wrap: nowrap;
+}
+.richtext-editor :deep(.w-e-bar-item) { flex-shrink: 0; }
 .richtext-editor :deep(.w-e-text-container) { min-height: 550px; background: var(--bg); }
 .markdown-editor { min-height: 550px; }
 

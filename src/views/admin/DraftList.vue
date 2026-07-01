@@ -3,10 +3,13 @@
     <h1 class="page-title">草稿箱</h1>
     <div class="loading" v-if="loading">加载中...</div>
     <table class="data-table" v-else-if="drafts.length">
-      <thead><tr><th>ID</th><th>标题</th><th>创建时间</th><th>操作</th></tr></thead>
+      <thead><tr><th>ID</th><th>封面</th><th>标题</th><th>创建时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="a in drafts" :key="a.id" :class="{ 'row-link': a.status === 2 }" @click="a.status === 2 && openPost(a.id)">
           <td>{{ a.id }}</td>
+          <td class="cover-cell">
+            <img v-if="a.cover" :src="a.cover" class="cover-thumb" @error="$event.target.style.display='none'" />
+          </td>
           <td class="title-cell">{{ a.title }}</td>
           <td>{{ formatDate(a.created_at) }}</td>
           <td class="actions" @click.stop>
@@ -30,6 +33,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getDrafts, deleteArticle, publishArticle } from '../../api/admin.js'
+import { useConfirm } from '../../composables/useConfirm.js'
 
 const drafts = ref([])
 const loading = ref(false)
@@ -55,7 +59,12 @@ async function fetchData() {
 function goPage(p) { page.value = p; fetchData() }
 
 async function doPublish(id) { try { await publishArticle(id); fetchData() } catch (e) { alert(e.message) } }
-async function doDelete(id) { if (confirm('确定删除？')) { try { await deleteArticle(id); fetchData() } catch (e) { alert(e.message) } } }
+const { showConfirm } = useConfirm()
+
+async function doDelete(id) {
+  const ok = await showConfirm('确定删除此草稿？')
+  if (ok) { try { await deleteArticle(id); fetchData() } catch (e) { alert(e.message) } }
+}
 
 onMounted(fetchData)
 </script>
@@ -68,6 +77,8 @@ onMounted(fetchData)
 .row-link { cursor: pointer; transition: background var(--transition); }
 .row-link:hover { background: var(--accent-light); }
 .title-cell { width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover-cell { padding: 6px 14px; }
+.cover-thumb { width: 48px; height: 32px; object-fit: cover; border-radius: 4px; display: block; }
 .actions { display: flex; gap: 6px; }
 .btn-sm { padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); font-size: 12px; cursor: pointer; text-decoration: none; transition: all var(--transition); }
 .btn-sm:hover { border-color: var(--accent-border); color: var(--accent); }

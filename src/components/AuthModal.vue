@@ -2,13 +2,13 @@
   <Teleport to="body">
     <div class="modal-overlay" v-if="visible" @click.self="$emit('close')">
       <div class="modal-card">
-        <button class="modal-close" @click="$emit('close')" title="关闭">
+        <button class="modal-close" @click="$emit('close')" title="关闭" aria-label="关闭">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
 
-        <!-- 登录 -->
         <template v-if="mode === 'login'">
           <h2 class="modal-title">欢迎回来</h2>
           <p class="modal-sub">登录你的账号</p>
@@ -31,14 +31,22 @@
           </p>
         </template>
 
-        <!-- 注册 -->
         <template v-else>
           <h2 class="modal-title">加入我们</h2>
-          <p class="modal-sub">创建一个新账号</p>
+          <p class="modal-sub">用邮箱验证码创建新账号</p>
           <form @submit.prevent="handleRegister" class="auth-form">
             <div class="form-field">
               <label for="reg-email">邮箱</label>
               <input id="reg-email" v-model.trim="registerForm.email" type="email" placeholder="请输入邮箱" autocomplete="email" required />
+            </div>
+            <div class="form-field">
+              <label for="reg-code">验证码</label>
+              <div class="code-row">
+                <input id="reg-code" v-model.trim="registerForm.code" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" autocomplete="one-time-code" required />
+                <button type="button" class="btn-code" :disabled="!canSendCode" @click="handleSendRegisterCode">
+                  {{ codeButtonText }}
+                </button>
+              </div>
             </div>
             <div class="form-field">
               <label for="reg-nickname">昵称</label>
@@ -52,6 +60,7 @@
               <label for="reg-confirm">确认密码</label>
               <input id="reg-confirm" v-model="registerForm.confirmPassword" type="password" placeholder="再次输入密码" autocomplete="new-password" required />
             </div>
+            <p class="form-notice" v-if="registerNotice">{{ registerNotice }}</p>
             <p class="form-error" v-if="registerError">{{ registerError }}</p>
             <button type="submit" class="btn-submit" :disabled="registerLoading">
               {{ registerLoading ? '注册中...' : '注 册' }}
@@ -67,62 +76,150 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref } from 'vue'
 import { useAuth } from '../stores/auth.js'
 
 const emit = defineEmits(['close'])
 defineProps({ visible: { type: Boolean, default: false } })
 
-const { login, register } = useAuth()
+const { login, register, sendRegisterCode } = useAuth()
 
 const mode = ref('login')
 const loginError = ref('')
 const registerError = ref('')
+const registerNotice = ref('')
 const loginLoading = ref(false)
 const registerLoading = ref(false)
+const codeSending = ref(false)
+const codeCountdown = ref(0)
+let codeTimer = null
 
 const loginForm = reactive({ email: '', password: '' })
-const registerForm = reactive({ email: '', nickname: '', password: '', confirmPassword: '' })
+const registerForm = reactive({ email: '', code: '', nickname: '', password: '', confirmPassword: '' })
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function switchToRegister() { mode.value = 'register'; loginError.value = ''; registerError.value = '' }
-function switchToLogin() { mode.value = 'login'; loginError.value = ''; registerError.value = '' }
+const canSendCode = computed(() => emailPattern.test(registerForm.email) && !codeSending.value && codeCountdown.value === 0)
+const codeButtonText = computed(() => {
+  if (codeSending.value) return '发送中...'
+  if (codeCountdown.value > 0) return `${codeCountdown.value}s`
+  return '发送验证码'
+})
+
+function switchToRegister() {
+  mode.value = 'register'
+  loginError.value = ''
+  registerError.value = ''
+  registerNotice.value = ''
+}
+
+function switchToLogin() {
+  mode.value = 'login'
+  loginError.value = ''
+  registerError.value = ''
+  registerNotice.value = ''
+}
+
+function startCodeCountdown() {
+  clearCodeTimer()
+  codeCountdown.value = 60
+  codeTimer = window.setInterval(() => {
+    codeCountdown.value -= 1
+    if (codeCountdown.value <= 0) clearCodeTimer()
+  }, 1000)
+}
+
+function clearCodeTimer() {
+  if (codeTimer) {
+    window.clearInterval(codeTimer)
+    codeTimer = null
+  }
+  if (codeCountdown.value < 0) codeCountdown.value = 0
+}
+
+function resetRegisterForm() {
+  registerForm.email = ''
+  registerForm.code = ''
+  registerForm.nickname = ''
+  registerForm.password = ''
+  registerForm.confirmPassword = ''
+  registerNotice.value = ''
+  registerError.value = ''
+  codeCountdown.value = 0
+  clearCodeTimer()
+}
 
 async function handleLogin() {
   loginError.value = ''
-  if (!loginForm.email || !loginForm.password) { loginError.value = '请填写邮箱和密码'; return }
+  if (!loginForm.email || !loginForm.password) {
+    loginError.value = '请填写邮箱和密码'
+    return
+  }
   loginLoading.value = true
   try {
     const result = await login(loginForm.email, loginForm.password)
     if (result.success) {
       emit('close')
-      loginForm.email = ''; loginForm.password = ''
+      loginForm.email = ''
+      loginForm.password = ''
     }
   } catch (e) {
     loginError.value = e.message || '登录失败'
+  } finally {
+    loginLoading.value = false
   }
-  loginLoading.value = false
+}
+
+async function handleSendRegisterCode() {
+  registerError.value = ''
+  registerNotice.value = ''
+  if (!emailPattern.test(registerForm.email)) {
+    registerError.value = '请先填写正确的邮箱'
+    return
+  }
+  codeSending.value = true
+  try {
+    await sendRegisterCode(registerForm.email)
+    registerNotice.value = '验证码已发送，请在 60 秒内完成注册'
+    startCodeCountdown()
+  } catch (e) {
+    registerError.value = e.message || '验证码发送失败'
+  } finally {
+    codeSending.value = false
+  }
 }
 
 async function handleRegister() {
   registerError.value = ''
-  if (!registerForm.email || !registerForm.password || !registerForm.nickname) {
-    registerError.value = '请填写所有字段'; return
+  if (!registerForm.email || !registerForm.code || !registerForm.password || !registerForm.nickname) {
+    registerError.value = '请填写所有字段'
+    return
   }
-  if (registerForm.password.length < 6) { registerError.value = '密码不少于6位'; return }
+  if (registerForm.code.length !== 6) {
+    registerError.value = '请输入 6 位验证码'
+    return
+  }
+  if (registerForm.password.length < 6) {
+    registerError.value = '密码不少于 6 位'
+    return
+  }
   if (registerForm.password !== registerForm.confirmPassword) {
-    registerError.value = '两次输入的密码不一致'; return
+    registerError.value = '两次输入的密码不一致'
+    return
   }
   registerLoading.value = true
   try {
     await register(registerForm)
     emit('close')
-    registerForm.email = ''; registerForm.nickname = ''; registerForm.password = ''; registerForm.confirmPassword = ''
+    resetRegisterForm()
     mode.value = 'login'
   } catch (e) {
     registerError.value = e.message || '注册失败'
+  } finally {
+    registerLoading.value = false
   }
-  registerLoading.value = false
 }
+
+onBeforeUnmount(clearCodeTimer)
 </script>
 
 <style scoped>
@@ -138,7 +235,7 @@ async function handleRegister() {
 
 .modal-card {
   position: relative;
-  width: 100%; max-width: 400px;
+  width: 100%; max-width: 420px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -182,6 +279,7 @@ async function handleRegister() {
   background: var(--bg); color: var(--text);
   font-size: 14px; font-family: var(--font-sans);
   transition: border-color var(--transition); outline: none;
+  min-width: 0;
 }
 .form-field input:focus {
   border-color: var(--accent-border);
@@ -189,7 +287,40 @@ async function handleRegister() {
 }
 .form-field input::placeholder { color: var(--text-muted); }
 
-.form-error { font-size: 13px; color: var(--danger); margin: 0; }
+.code-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 8px;
+}
+.btn-code {
+  height: 42px;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.btn-code:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-code:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.form-error,
+.form-notice {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+.form-error { color: var(--danger); }
+.form-notice { color: var(--accent); }
 
 .btn-submit {
   height: 44px; margin-top: 4px;
@@ -217,5 +348,14 @@ async function handleRegister() {
 @media (max-width: 768px) {
   .modal-card { padding: 28px 20px 24px; }
   .modal-title { font-size: 22px; }
+}
+
+@media (max-width: 420px) {
+  .code-row {
+    grid-template-columns: 1fr;
+  }
+  .btn-code {
+    width: 100%;
+  }
 }
 </style>

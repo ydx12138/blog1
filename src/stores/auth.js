@@ -78,6 +78,11 @@ export function useAuth() {
     return { success: true, message: '注册成功' }
   }
 
+  async function sendRegisterCode(email) {
+    await authApi.sendRegisterCode(email)
+    return { success: true, message: '验证码已发送' }
+  }
+
   function logout() {
     state.user = null
     clearUser()
@@ -108,6 +113,7 @@ export function useAuth() {
     token,
     login,
     register,
+    sendRegisterCode,
     logout,
     adminLogin: adminLoginFn,
     adminLogout,

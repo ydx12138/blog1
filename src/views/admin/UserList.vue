@@ -42,6 +42,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getUsers, banUser, unbanUser, deleteUser } from '../../api/admin.js'
+import { useConfirm } from '../../composables/useConfirm.js'
 
 const users = ref([])
 const loading = ref(false)
@@ -70,7 +71,12 @@ function goPage(p) { page.value = p; fetchData() }
 
 async function ban(id) { try { await banUser(id); fetchData() } catch (e) { alert(e.message) } }
 async function unban(id) { try { await unbanUser(id); fetchData() } catch (e) { alert(e.message) } }
-async function del(id) { if (confirm('确定删除此用户？')) { try { await deleteUser(id); fetchData() } catch (e) { alert(e.message) } } }
+const { showConfirm } = useConfirm()
+
+async function del(id) {
+  const ok = await showConfirm('确定删除此用户？')
+  if (ok) { try { await deleteUser(id); fetchData() } catch (e) { alert(e.message) } }
+}
 
 onMounted(fetchData)
 </script>

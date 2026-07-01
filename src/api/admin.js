@@ -13,11 +13,11 @@ export function getAdminArticles(params = {}) {
   const { page = 1, pageSize = 10, keyword = '', status = 0 } = params
   return request('GET', `${PREFIX}/articles?page=${page}&page_size=${pageSize}&keyword=${encodeURIComponent(keyword)}&status=${status}`, null, ADMIN)
 }
-
+// 获取文章详情
 export function getAdminArticle(id) {
   return request('GET', `${PREFIX}/articles/${id}`, null, ADMIN)
 }
-
+// 创建文章
 export function createArticle(data) {
   return request('POST', `${PREFIX}/articles`, data, ADMIN)
 }

@@ -12,6 +12,7 @@
     <table class="data-table" v-else-if="articles.length">
       <colgroup>
         <col style="width:50px">
+        <col style="width:60px">
         <col style="width:180px">
         <col style="width:90px">
         <col style="width:50px">
@@ -20,10 +21,13 @@
         <col style="width:110px">
         <col style="width:160px">
       </colgroup>
-      <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>浏览</th><th>点赞</th><th>评论</th><th>发布时间</th><th>操作</th></tr></thead>
+      <thead><tr><th>ID</th><th>封面</th><th>标题</th><th>分类</th><th>浏览</th><th>点赞</th><th>评论</th><th>发布时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="a in articles" :key="a.id">
           <td>{{ a.id }}</td>
+          <td class="cover-cell">
+            <img v-if="a.cover" :src="a.cover" class="cover-thumb" @error="$event.target.style.display='none'" />
+          </td>
           <td class="title-cell">{{ a.title }}</td>
           <td>{{ a.Category?.name || '-' }}</td>
           <td>{{ a.view_count }}</td>
@@ -52,6 +56,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getAdminArticles, deleteArticle as delArticle } from '../../api/admin.js'
+import { useConfirm } from '../../composables/useConfirm.js'
 
 const articles = ref([])
 const loading = ref(false)
@@ -82,7 +87,12 @@ function onSearchInput() {
 }
 function goPage(p) { page.value = p; fetchData() }
 
-async function deleteArticle(id) { if (confirm('确定删除此文章？')) { try { await delArticle(id); fetchData() } catch (e) { alert(e.message) } } }
+const { showConfirm } = useConfirm()
+
+async function deleteArticle(id) {
+  const ok = await showConfirm('确定删除此文章？')
+  if (ok) { try { await delArticle(id); fetchData() } catch (e) { alert(e.message) } }
+}
 
 onMounted(fetchData)
 </script>
@@ -97,6 +107,8 @@ onMounted(fetchData)
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
 .data-table th { font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; }
 .title-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover-cell { padding: 6px 14px; }
+.cover-thumb { width: 48px; height: 32px; object-fit: cover; border-radius: 4px; display: block; }
 .actions { display: flex; gap: 6px; }
 .btn-sm { padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); font-size: 12px; cursor: pointer; text-decoration: none; transition: all var(--transition); }
 .btn-sm:hover { border-color: var(--accent-border); color: var(--accent); }

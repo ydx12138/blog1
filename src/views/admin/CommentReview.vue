@@ -32,7 +32,7 @@
           <td>{{ formatDate(c.created_at) }}</td>
           <td class="actions">
             <button
-              v-for="s in [1, 2, 3]"
+              v-for="s in [1, 3]"
               :key="s"
               :class="['btn-sm', s === c.status ? 'btn-active' : '']"
               :disabled="s === c.status"
@@ -56,6 +56,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getAllComments, setCommentStatus, deleteComment } from '../../api/admin.js'
+import { useConfirm } from '../../composables/useConfirm.js'
 
 const comments = ref([])
 const loading = ref(false)
@@ -68,8 +69,8 @@ let searchTimer = null
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
 
-const statusMap = { 1: '正常', 2: '隐藏', 3: '待审核' }
-const badgeMap = { 1: 'badge-ok', 2: 'badge-hide', 3: 'badge-pending' }
+const statusMap = { 1: '正常', 3: '待审核' }
+const badgeMap = { 1: 'badge-ok', 3: 'badge-pending' }
 
 function statusLabel(s) { return statusMap[s] || '未知' }
 function statusBadge(s) { return ['badge', badgeMap[s]].join(' ') }
@@ -92,7 +93,12 @@ function onSearchInput() {
 }
 function goPage(p) { page.value = p; fetchData() }
 
-async function doDelete(id) { if (confirm('确定删除此评论？')) { try { await deleteComment(id); fetchData() } catch (e) { alert(e.message) } } }
+const { showConfirm } = useConfirm()
+
+async function doDelete(id) {
+  const ok = await showConfirm('确定删除此评论？')
+  if (ok) { try { await deleteComment(id); fetchData() } catch (e) { alert(e.message) } }
+}
 
 async function setStatus(id, status) {
   try {
@@ -125,7 +131,6 @@ onMounted(fetchData)
 
 .badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 12px; }
 .badge-ok { background: #dcfce7; color: #166534; }
-.badge-hide { background: var(--tag-bg); color: var(--tag-text); }
 .badge-pending { background: #fef3c7; color: #92400e; }
 
 .btn-sm { padding: 3px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all var(--transition); }

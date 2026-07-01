@@ -18,6 +18,7 @@
     <main class="admin-main">
       <router-view />
     </main>
+    <ConfirmModal :visible="visible" :message="message" @ok="handleOk" @cancel="handleCancel" />
   </div>
 </template>
 
@@ -25,9 +26,12 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../../stores/auth.js'
+import { useConfirm } from '../../composables/useConfirm.js'
+import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const { adminUser, isAdmin, adminLogout } = useAuth()
 const router = useRouter()
+const { visible, message, handleOk, handleCancel } = useConfirm()
 
 onMounted(() => {
   if (!isAdmin.value) {
