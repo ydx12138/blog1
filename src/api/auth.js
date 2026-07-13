@@ -18,6 +18,19 @@ export function register(data) {
   })
 }
 
+export function sendPasswordResetCode(email) {
+  return request('POST', '/api/sendpwdcode', { email })
+}
+
+export function updatePasswordByCode(data) {
+  return request('POST', '/api/updatePasswordByCode', {
+    email: data.email,
+    password: data.password,
+    re_password: data.confirmPassword || data.password,
+    code: data.code,
+  })
+}
+
 export function adminLogin(username, password) {
   return request('POST', '/api/admin/login', { username, password }, true)
 }

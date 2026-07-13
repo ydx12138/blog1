@@ -18,8 +18,23 @@
               <input id="login-email" v-model.trim="loginForm.email" type="email" placeholder="请输入邮箱" autocomplete="email" required />
             </div>
             <div class="form-field">
-              <label for="login-password">密码</label>
-              <input id="login-password" v-model="loginForm.password" type="password" placeholder="请输入密码" autocomplete="current-password" required />
+              <div class="label-row">
+                <label for="login-password">密码</label>
+                <button type="button" class="inline-link" @click="switchToForgot">忘记密码？</button>
+              </div>
+              <div class="password-wrapper">
+                <input id="login-password" v-model="loginForm.password" :type="showLoginPassword ? 'text' : 'password'" placeholder="请输入密码" autocomplete="current-password" required />
+                <button type="button" class="eye-btn" @click="showLoginPassword = !showLoginPassword" tabindex="-1">
+                  <svg v-if="showLoginPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             <p class="form-error" v-if="loginError">{{ loginError }}</p>
             <button type="submit" class="btn-submit" :disabled="loginLoading">
@@ -31,7 +46,7 @@
           </p>
         </template>
 
-        <template v-else>
+        <template v-else-if="mode === 'register'">
           <h2 class="modal-title">加入我们</h2>
           <p class="modal-sub">用邮箱验证码创建新账号</p>
           <form @submit.prevent="handleRegister" class="auth-form">
@@ -43,8 +58,8 @@
               <label for="reg-code">验证码</label>
               <div class="code-row">
                 <input id="reg-code" v-model.trim="registerForm.code" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" autocomplete="one-time-code" required />
-                <button type="button" class="btn-code" :disabled="!canSendCode" @click="handleSendRegisterCode">
-                  {{ codeButtonText }}
+                <button type="button" class="btn-code" :disabled="!canSendRegisterCode" @click="handleSendRegisterCode">
+                  {{ registerCodeButtonText }}
                 </button>
               </div>
             </div>
@@ -54,11 +69,35 @@
             </div>
             <div class="form-field">
               <label for="reg-password">密码</label>
-              <input id="reg-password" v-model="registerForm.password" type="password" placeholder="6-10 位密码" autocomplete="new-password" minlength="6" maxlength="10" required />
+              <div class="password-wrapper">
+                <input id="reg-password" v-model="registerForm.password" :type="showRegPassword ? 'text' : 'password'" placeholder="6-10 位密码" autocomplete="new-password" minlength="6" maxlength="10" required />
+                <button type="button" class="eye-btn" @click="showRegPassword = !showRegPassword" tabindex="-1">
+                  <svg v-if="showRegPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             <div class="form-field">
               <label for="reg-confirm">确认密码</label>
-              <input id="reg-confirm" v-model="registerForm.confirmPassword" type="password" placeholder="再次输入密码" autocomplete="new-password" required />
+              <div class="password-wrapper">
+                <input id="reg-confirm" v-model="registerForm.confirmPassword" :type="showRegConfirm ? 'text' : 'password'" placeholder="再次输入密码" autocomplete="new-password" required />
+                <button type="button" class="eye-btn" @click="showRegConfirm = !showRegConfirm" tabindex="-1">
+                  <svg v-if="showRegConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             <p class="form-notice" v-if="registerNotice">{{ registerNotice }}</p>
             <p class="form-error" v-if="registerError">{{ registerError }}</p>
@@ -68,6 +107,66 @@
           </form>
           <p class="switch-mode">
             已有账号？<button class="link-btn" @click="switchToLogin">去登录</button>
+          </p>
+        </template>
+
+        <template v-else>
+          <h2 class="modal-title">重置密码</h2>
+          <p class="modal-sub">通过邮箱验证码设置新密码</p>
+          <form @submit.prevent="handleResetPassword" class="auth-form">
+            <div class="form-field">
+              <label for="reset-email">邮箱</label>
+              <input id="reset-email" v-model.trim="resetForm.email" type="email" placeholder="请输入绑定邮箱" autocomplete="email" required />
+            </div>
+            <div class="form-field">
+              <label for="reset-code">验证码</label>
+              <div class="code-row">
+                <input id="reset-code" v-model.trim="resetForm.code" type="text" inputmode="numeric" maxlength="6" placeholder="6 位验证码" autocomplete="one-time-code" required />
+                <button type="button" class="btn-code" :disabled="!canSendResetCode" @click="handleSendResetCode">
+                  {{ resetCodeButtonText }}
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="reset-password">新密码</label>
+              <div class="password-wrapper">
+                <input id="reset-password" v-model="resetForm.password" :type="showResetPassword ? 'text' : 'password'" placeholder="6-10 位新密码" autocomplete="new-password" minlength="6" maxlength="10" required />
+                <button type="button" class="eye-btn" @click="showResetPassword = !showResetPassword" tabindex="-1">
+                  <svg v-if="showResetPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="reset-confirm">确认新密码</label>
+              <div class="password-wrapper">
+                <input id="reset-confirm" v-model="resetForm.confirmPassword" :type="showResetConfirm ? 'text' : 'password'" placeholder="再次输入新密码" autocomplete="new-password" required />
+                <button type="button" class="eye-btn" @click="showResetConfirm = !showResetConfirm" tabindex="-1">
+                  <svg v-if="showResetConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p class="form-notice" v-if="resetNotice">{{ resetNotice }}</p>
+            <p class="form-error" v-if="resetError">{{ resetError }}</p>
+            <button type="submit" class="btn-submit" :disabled="resetLoading">
+              {{ resetLoading ? '提交中...' : '重置密码' }}
+            </button>
+          </form>
+          <p class="switch-mode">
+            想起来了？<button class="link-btn" @click="switchToLogin">返回登录</button>
           </p>
         </template>
       </div>
@@ -82,58 +181,110 @@ import { useAuth } from '../stores/auth.js'
 const emit = defineEmits(['close'])
 defineProps({ visible: { type: Boolean, default: false } })
 
-const { login, register, sendRegisterCode } = useAuth()
+const {
+  login,
+  register,
+  sendRegisterCode,
+  sendPasswordResetCode,
+  updatePasswordByCode,
+} = useAuth()
 
 const mode = ref('login')
 const loginError = ref('')
 const registerError = ref('')
 const registerNotice = ref('')
+const resetError = ref('')
+const resetNotice = ref('')
 const loginLoading = ref(false)
 const registerLoading = ref(false)
-const codeSending = ref(false)
-const codeCountdown = ref(0)
-let codeTimer = null
+const resetLoading = ref(false)
+const registerCodeSending = ref(false)
+const resetCodeSending = ref(false)
+const registerCodeCountdown = ref(0)
+const resetCodeCountdown = ref(0)
+let registerCodeTimer = null
+let resetCodeTimer = null
 
 const loginForm = reactive({ email: '', password: '' })
 const registerForm = reactive({ email: '', code: '', nickname: '', password: '', confirmPassword: '' })
+const resetForm = reactive({ email: '', code: '', password: '', confirmPassword: '' })
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-const canSendCode = computed(() => emailPattern.test(registerForm.email) && !codeSending.value && codeCountdown.value === 0)
-const codeButtonText = computed(() => {
-  if (codeSending.value) return '发送中...'
-  if (codeCountdown.value > 0) return `${codeCountdown.value}s`
+// 密码可见性状态
+const showLoginPassword = ref(false)
+const showRegPassword = ref(false)
+const showRegConfirm = ref(false)
+const showResetPassword = ref(false)
+const showResetConfirm = ref(false)
+
+const canSendRegisterCode = computed(() => emailPattern.test(registerForm.email) && !registerCodeSending.value && registerCodeCountdown.value === 0)
+const canSendResetCode = computed(() => emailPattern.test(resetForm.email) && !resetCodeSending.value && resetCodeCountdown.value === 0)
+const registerCodeButtonText = computed(() => codeButtonText(registerCodeSending.value, registerCodeCountdown.value))
+const resetCodeButtonText = computed(() => codeButtonText(resetCodeSending.value, resetCodeCountdown.value))
+
+function codeButtonText(sending, countdown) {
+  if (sending) return '发送中...'
+  if (countdown > 0) return `${countdown}s`
   return '发送验证码'
-})
+}
 
 function switchToRegister() {
   mode.value = 'register'
-  loginError.value = ''
-  registerError.value = ''
-  registerNotice.value = ''
+  clearMessages()
 }
 
 function switchToLogin() {
   mode.value = 'login'
+  clearMessages()
+}
+
+function switchToForgot() {
+  mode.value = 'forgot'
+  clearMessages()
+  resetForm.email = loginForm.email
+}
+
+function clearMessages() {
   loginError.value = ''
   registerError.value = ''
   registerNotice.value = ''
+  resetError.value = ''
+  resetNotice.value = ''
 }
 
-function startCodeCountdown() {
-  clearCodeTimer()
-  codeCountdown.value = 60
-  codeTimer = window.setInterval(() => {
-    codeCountdown.value -= 1
-    if (codeCountdown.value <= 0) clearCodeTimer()
+function startCountdown(kind) {
+  const isRegister = kind === 'register'
+  clearCountdown(kind)
+  if (isRegister) {
+    registerCodeCountdown.value = 60
+    registerCodeTimer = window.setInterval(() => {
+      registerCodeCountdown.value -= 1
+      if (registerCodeCountdown.value <= 0) clearCountdown('register')
+    }, 1000)
+    return
+  }
+  resetCodeCountdown.value = 60
+  resetCodeTimer = window.setInterval(() => {
+    resetCodeCountdown.value -= 1
+    if (resetCodeCountdown.value <= 0) clearCountdown('reset')
   }, 1000)
 }
 
-function clearCodeTimer() {
-  if (codeTimer) {
-    window.clearInterval(codeTimer)
-    codeTimer = null
+function clearCountdown(kind) {
+  if (kind === 'register' || !kind) {
+    if (registerCodeTimer) {
+      window.clearInterval(registerCodeTimer)
+      registerCodeTimer = null
+    }
+    if (registerCodeCountdown.value < 0) registerCodeCountdown.value = 0
   }
-  if (codeCountdown.value < 0) codeCountdown.value = 0
+  if (kind === 'reset' || !kind) {
+    if (resetCodeTimer) {
+      window.clearInterval(resetCodeTimer)
+      resetCodeTimer = null
+    }
+    if (resetCodeCountdown.value < 0) resetCodeCountdown.value = 0
+  }
 }
 
 function resetRegisterForm() {
@@ -142,10 +293,33 @@ function resetRegisterForm() {
   registerForm.nickname = ''
   registerForm.password = ''
   registerForm.confirmPassword = ''
-  registerNotice.value = ''
-  registerError.value = ''
-  codeCountdown.value = 0
-  clearCodeTimer()
+  registerCodeCountdown.value = 0
+  clearCountdown('register')
+}
+
+function resetPasswordForm() {
+  resetForm.email = ''
+  resetForm.code = ''
+  resetForm.password = ''
+  resetForm.confirmPassword = ''
+  resetCodeCountdown.value = 0
+  clearCountdown('reset')
+}
+
+function validatePasswordPair(form, setError) {
+  if (form.password.length < 6) {
+    setError('密码不少于 6 位')
+    return false
+  }
+  if (form.password.length > 10) {
+    setError('密码不能超过 10 位')
+    return false
+  }
+  if (form.password !== form.confirmPassword) {
+    setError('两次输入的密码不一致')
+    return false
+  }
+  return true
 }
 
 async function handleLogin() {
@@ -176,15 +350,34 @@ async function handleSendRegisterCode() {
     registerError.value = '请先填写正确的邮箱'
     return
   }
-  codeSending.value = true
+  registerCodeSending.value = true
   try {
     await sendRegisterCode(registerForm.email)
     registerNotice.value = '验证码已发送，请在 60 秒内完成注册'
-    startCodeCountdown()
+    startCountdown('register')
   } catch (e) {
     registerError.value = e.message || '验证码发送失败'
   } finally {
-    codeSending.value = false
+    registerCodeSending.value = false
+  }
+}
+
+async function handleSendResetCode() {
+  resetError.value = ''
+  resetNotice.value = ''
+  if (!emailPattern.test(resetForm.email)) {
+    resetError.value = '请先填写正确的邮箱'
+    return
+  }
+  resetCodeSending.value = true
+  try {
+    await sendPasswordResetCode(resetForm.email)
+    resetNotice.value = '验证码已发送，请在 60 秒内完成重置'
+    startCountdown('reset')
+  } catch (e) {
+    resetError.value = e.message || '验证码发送失败'
+  } finally {
+    resetCodeSending.value = false
   }
 }
 
@@ -198,14 +391,7 @@ async function handleRegister() {
     registerError.value = '请输入 6 位验证码'
     return
   }
-  if (registerForm.password.length < 6) {
-    registerError.value = '密码不少于 6 位'
-    return
-  }
-  if (registerForm.password !== registerForm.confirmPassword) {
-    registerError.value = '两次输入的密码不一致'
-    return
-  }
+  if (!validatePasswordPair(registerForm, (msg) => { registerError.value = msg })) return
   registerLoading.value = true
   try {
     await register(registerForm)
@@ -219,7 +405,33 @@ async function handleRegister() {
   }
 }
 
-onBeforeUnmount(clearCodeTimer)
+async function handleResetPassword() {
+  resetError.value = ''
+  if (!resetForm.email || !resetForm.code || !resetForm.password) {
+    resetError.value = '请填写所有字段'
+    return
+  }
+  if (resetForm.code.length !== 6) {
+    resetError.value = '请输入 6 位验证码'
+    return
+  }
+  if (!validatePasswordPair(resetForm, (msg) => { resetError.value = msg })) return
+  resetLoading.value = true
+  try {
+    await updatePasswordByCode(resetForm)
+    resetNotice.value = '密码已重置，请使用新密码登录'
+    loginForm.email = resetForm.email
+    loginForm.password = ''
+    resetPasswordForm()
+    mode.value = 'login'
+  } catch (e) {
+    resetError.value = e.message || '密码重置失败'
+  } finally {
+    resetLoading.value = false
+  }
+}
+
+onBeforeUnmount(() => clearCountdown())
 </script>
 
 <style scoped>
@@ -268,6 +480,12 @@ onBeforeUnmount(clearCodeTimer)
 
 .auth-form { display: flex; flex-direction: column; gap: 14px; }
 .form-field { display: flex; flex-direction: column; gap: 5px; }
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 .form-field label {
   font-size: 13px; font-weight: 500;
   color: var(--text-secondary);
@@ -286,6 +504,40 @@ onBeforeUnmount(clearCodeTimer)
   box-shadow: 0 0 0 3px var(--accent-light);
 }
 .form-field input::placeholder { color: var(--text-muted); }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper input {
+  flex: 1;
+  padding-right: 40px;
+}
+/* 隐藏浏览器自带的密码眼睛图标 */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+.eye-btn {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
+}
+.eye-btn:hover {
+  color: var(--text);
+}
 
 .code-row {
   display: grid;
@@ -338,12 +590,14 @@ onBeforeUnmount(clearCodeTimer)
   margin-top: 22px; text-align: center;
   font-size: 13px; color: var(--text-secondary);
 }
-.link-btn {
+.link-btn,
+.inline-link {
   border: none; background: none;
   color: var(--accent); font-size: 13px;
   font-weight: 500; cursor: pointer; padding: 0;
 }
-.link-btn:hover { text-decoration: underline; }
+.link-btn:hover,
+.inline-link:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
   .modal-card { padding: 28px 20px 24px; }
@@ -351,11 +605,7 @@ onBeforeUnmount(clearCodeTimer)
 }
 
 @media (max-width: 420px) {
-  .code-row {
-    grid-template-columns: 1fr;
-  }
-  .btn-code {
-    width: 100%;
-  }
+  .code-row { grid-template-columns: 1fr; }
+  .btn-code { width: 100%; }
 }
 </style>
