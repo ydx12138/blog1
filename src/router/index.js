@@ -28,6 +28,7 @@ const routes = [
       { path: 'drafts', name: 'admin-drafts', component: () => import('../views/admin/DraftList.vue') },
       { path: 'comments', name: 'admin-comments', component: () => import('../views/admin/CommentReview.vue') },
       { path: 'users', name: 'admin-users', component: () => import('../views/admin/UserList.vue') },
+      { path: 'categories', name: 'admin-categories', component: () => import('../views/admin/CategoryList.vue') },
     ],
   },
 

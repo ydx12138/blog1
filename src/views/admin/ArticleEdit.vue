@@ -312,6 +312,8 @@ async function publish() { await save(2) }
 
 async function save(status) {
   if (!form.value.title) { alert('请输入标题'); return }
+  // 保存前把输入框里的标签也添加进去
+  addCustomTag()
   saving.value = true
   try {
     const data = { ...form.value, status }

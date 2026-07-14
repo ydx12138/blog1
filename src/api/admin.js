@@ -94,3 +94,42 @@ export function unbanUser(id) {
 export function deleteUser(id) {
   return request('DELETE', `${PREFIX}/users/${id}`, { id: numID(id) }, ADMIN)
 }
+
+// Categories
+export function getAdminCategories(keyword = '') {
+  let url = `${PREFIX}/categories`
+  if (keyword) url += `?keyword=${encodeURIComponent(keyword)}`
+  return request('GET', url, null, ADMIN)
+}
+
+export function createCategory(data) {
+  return request('POST', `${PREFIX}/categories`, data, ADMIN)
+}
+
+export function updateCategory(id, data) {
+  return request('PUT', `${PREFIX}/categories/${id}`, data, ADMIN)
+}
+
+export function updateCategorySort(id, sort) {
+  return request('PUT', `${PREFIX}/categories/${id}/sort`, { sort }, ADMIN)
+}
+
+export function batchUpdateCategorySort(ids) {
+  return request('PUT', `${PREFIX}/categories/sort`, { ids }, ADMIN)
+}
+
+export function deleteCategory(id) {
+  return request('DELETE', `${PREFIX}/categories/${id}`, null, ADMIN)
+}
+
+export function getCategoryArticles(id, page = 1, pageSize = 10) {
+  return request('GET', `${PREFIX}/categories/${id}/articles?page=${page}&page_size=${pageSize}`, null, ADMIN)
+}
+
+export function getCategoryArticleCount(id) {
+  return request('GET', `${PREFIX}/categories/${id}/article-count`, null, ADMIN)
+}
+
+export function transferArticles(fromCategoryId, toCategoryId) {
+  return request('POST', `${PREFIX}/categories/transfer`, { from_category_id: fromCategoryId, to_category_id: toCategoryId }, ADMIN)
+}
