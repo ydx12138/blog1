@@ -33,8 +33,34 @@ function removeItem(key) {
   } catch {}
 }
 
+export function isUsableToken(value) {
+  return typeof value === 'string' && value.trim() !== '' && value !== 'undefined' && value !== 'null'
+}
+
+export function sessionFromLoginResponse(data) {
+  return {
+    user: { id: data.id, email: data.email, nickname: data.nickname },
+    token: data.access_token,
+  }
+}
+
+function readText(key) {
+  try {
+    return localStorage.getItem(key) || ''
+  } catch {
+    return ''
+  }
+}
+
+const storedUser = readJson(USER_KEY)
+const storedToken = readText(TOKEN_KEY)
+if (storedUser && !isUsableToken(storedToken)) {
+  removeItem(USER_KEY)
+  removeItem(TOKEN_KEY)
+}
+
 const state = reactive({
-  user: readJson(USER_KEY),
+  user: isUsableToken(storedToken) ? storedUser : null,
   adminUser: readJson(ADMIN_USER_KEY),
 })
 
@@ -51,10 +77,13 @@ export function useAuth() {
 
   async function login(email, password) {
     const data = await authApi.login(email, password)
-    const user = { id: data.id, email: data.email, nickname: data.nickname }
-    state.user = user
-    writeJson(USER_KEY, user)
-    writeText(TOKEN_KEY, data.token)
+    const session = sessionFromLoginResponse(data)
+    if (!isUsableToken(session.token)) {
+      throw new Error('登录响应缺少 access_token')
+    }
+    state.user = session.user
+    writeJson(USER_KEY, session.user)
+    writeText(TOKEN_KEY, session.token)
     return { success: true, message: '登录成功' }
   }
 
