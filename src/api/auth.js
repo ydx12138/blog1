@@ -31,6 +31,10 @@ export function updatePasswordByCode(data) {
   })
 }
 
+export function getCurrentUser() {
+  return request('GET', '/api/users/me')
+}
+
 export function adminLogin(username, password) {
   return request('POST', '/api/admin/login', { username, password }, true)
 }

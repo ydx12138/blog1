@@ -44,10 +44,10 @@
           <span class="user-name">{{ user?.nickname || user?.email }}</span>
         </button>
         <div class="dropdown-menu" v-if="dropdownOpen" @click.stop>
-          <div class="dropdown-header">
+          <button class="dropdown-header" type="button" title="查看个人资料" @click="goToProfile">
             <span class="dropdown-name">{{ user?.nickname }}</span>
             <span class="dropdown-email">{{ user?.email }}</span>
-          </div>
+          </button>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item logout" @click="handleLogout">退出登录</button>
         </div>
@@ -60,11 +60,13 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { site } from '../data/site.js'
 import { useAuth } from '../stores/auth.js'
 import AuthModal from './AuthModal.vue'
 
 const { user, isLoggedIn, logout } = useAuth()
+const router = useRouter()
 
 // ---- 主题 ----
 const STORAGE_KEY = 'blog-theme'
@@ -104,15 +106,23 @@ const userInitial = computed(() => user.value ? (user.value.nickname || user.val
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 function toggleDropdown() { dropdownOpen.value = !dropdownOpen.value }
+function goToProfile() { dropdownOpen.value = false; router.push({ name: 'profile' }) }
 function handleLogout() { logout(); dropdownOpen.value = false }
 function handleClickOutside(e) { if (dropdownRef.value && !dropdownRef.value.contains(e.target)) dropdownOpen.value = false }
+function openAuthModal() { showAuthModal.value = true }
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  window.addEventListener('show-auth-modal', () => { showAuthModal.value = true })
+  window.addEventListener('show-auth-modal', openAuthModal)
+  try {
+    if (sessionStorage.getItem('blog-show-auth')) {
+      sessionStorage.removeItem('blog-show-auth')
+      openAuthModal()
+    }
+  } catch {}
 })
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-  window.removeEventListener('show-auth-modal', () => {})
+  window.removeEventListener('show-auth-modal', openAuthModal)
 })
 </script>
 
@@ -268,7 +278,18 @@ onUnmounted(() => {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.dropdown-header { padding: 10px 14px 6px; }
+.dropdown-header {
+  display: block;
+  width: 100%;
+  padding: 10px 14px 8px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.dropdown-header:hover { background: var(--accent-light); }
 .dropdown-name { display: block; font-size: 13px; font-weight: 600; color: var(--heading); }
 .dropdown-email { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 .dropdown-divider { height: 1px; background: var(--border-light); margin: 0 8px; }

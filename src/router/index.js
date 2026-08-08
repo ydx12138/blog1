@@ -8,6 +8,7 @@ const routes = [
   { path: '/categories', name: 'categories', component: () => import('../views/CategoriesPage.vue') },
   { path: '/categories/:id', name: 'category', component: () => import('../views/CategoryPage.vue') },
   { path: '/about', name: 'about', component: () => import('../views/AboutPage.vue') },
+  { path: '/profile', name: 'profile', component: () => import('../views/ProfilePage.vue'), meta: { requiresUser: true } },
 
   // === 管理端 ===
   { path: '/admin/login', name: 'admin-login', component: () => import('../views/admin/AdminLogin.vue') },
@@ -39,6 +40,21 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior() { return { top: 0 } },
+})
+
+router.beforeEach((to) => {
+  if (!to.meta.requiresUser) return true
+
+  let hasSession = false
+  try {
+    hasSession = Boolean(localStorage.getItem('blog-user') && localStorage.getItem('blog-token'))
+  } catch {}
+
+  if (hasSession) return true
+
+  try { sessionStorage.setItem('blog-show-auth', '1') } catch {}
+  window.dispatchEvent(new Event('show-auth-modal'))
+  return { name: 'home' }
 })
 
 export default router
