@@ -3,6 +3,7 @@ import * as authApi from '../api/auth.js'
 
 const USER_KEY = 'blog-user'
 const TOKEN_KEY = 'blog-token'
+const REFRESH_TOKEN_KEY = 'blog-refresh-token'
 const ADMIN_TOKEN_KEY = 'blog-admin-token'
 const ADMIN_USER_KEY = 'blog-admin-user'
 
@@ -38,6 +39,12 @@ const state = reactive({
   adminUser: readJson(ADMIN_USER_KEY),
 })
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('blog:session-replaced', () => {
+    state.user = null
+  })
+}
+
 export function useAuth() {
   const isLoggedIn = computed(() => !!state.user)
   const isAdmin = computed(() => !!state.adminUser)
@@ -51,11 +58,28 @@ export function useAuth() {
 
   async function login(email, password) {
     const data = await authApi.login(email, password)
-    const user = { id: data.id, email: data.email, nickname: data.nickname }
+    const user = { id: data.id, email: data.email, nickname: data.nickname, avatar: data.avatar }
     state.user = user
     writeJson(USER_KEY, user)
-    writeText(TOKEN_KEY, data.token)
+    writeText(TOKEN_KEY, data.access_token)
+    if (data.refresh_token) {
+      writeText(REFRESH_TOKEN_KEY, data.refresh_token)
+    }
     return { success: true, message: '登录成功' }
+  }
+
+  async function refreshUser() {
+    const profile = await authApi.getCurrentUser()
+    const nextUser = {
+      ...(state.user || {}),
+      id: profile.id,
+      email: profile.email,
+      nickname: profile.nickname,
+      avatar: profile.avatar,
+    }
+    state.user = nextUser
+    writeJson(USER_KEY, nextUser)
+    return nextUser
   }
 
   async function register(formData) {
@@ -82,6 +106,7 @@ export function useAuth() {
     state.user = null
     removeItem(USER_KEY)
     removeItem(TOKEN_KEY)
+    removeItem(REFRESH_TOKEN_KEY)
   }
 
   async function adminLoginFn(username, password) {
@@ -106,6 +131,7 @@ export function useAuth() {
     isAdmin,
     token,
     login,
+    refreshUser,
     register,
     sendRegisterCode,
     sendPasswordResetCode,

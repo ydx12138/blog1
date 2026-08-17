@@ -40,7 +40,8 @@
       <!-- 已登录 -->
       <div v-else class="user-dropdown" ref="dropdownRef">
         <button class="btn-user" @click="toggleDropdown">
-          <span class="user-avatar">{{ userInitial }}</span>
+          <img v-if="user?.avatar" class="user-avatar user-avatar-image" :src="user.avatar" :alt="user?.nickname || user?.email" />
+          <span v-else class="user-avatar">{{ userInitial }}</span>
           <span class="user-name">{{ user?.nickname || user?.email }}</span>
         </button>
         <div class="dropdown-menu" v-if="dropdownOpen" @click.stop>
@@ -65,7 +66,7 @@ import { site } from '../data/site.js'
 import { useAuth } from '../stores/auth.js'
 import AuthModal from './AuthModal.vue'
 
-const { user, isLoggedIn, logout } = useAuth()
+const { user, isLoggedIn, refreshUser, logout } = useAuth()
 const router = useRouter()
 
 // ---- 主题 ----
@@ -95,6 +96,9 @@ onMounted(() => {
   mediaQuery.addEventListener('change', (e) => {
     if (!getStoredTheme()) { isDark.value = e.matches; applyTheme(e.matches ? 'dark' : 'light') }
   })
+  if (isLoggedIn.value && !user.value?.avatar) {
+    refreshUser().catch(() => {})
+  }
 })
 onUnmounted(() => { if (mediaQuery) mediaQuery.removeEventListener('change', () => {}) })
 
@@ -107,18 +111,19 @@ const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 function toggleDropdown() { dropdownOpen.value = !dropdownOpen.value }
 function goToProfile() { dropdownOpen.value = false; router.push({ name: 'profile' }) }
-function handleLogout() { logout(); dropdownOpen.value = false }
+function handleLogout() {
+  logout()
+  dropdownOpen.value = false
+  showAuthModal.value = false
+  try { sessionStorage.removeItem('blog-show-auth') } catch {}
+  router.replace({ name: 'home' })
+}
 function handleClickOutside(e) { if (dropdownRef.value && !dropdownRef.value.contains(e.target)) dropdownOpen.value = false }
 function openAuthModal() { showAuthModal.value = true }
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('show-auth-modal', openAuthModal)
-  try {
-    if (sessionStorage.getItem('blog-show-auth')) {
-      sessionStorage.removeItem('blog-show-auth')
-      openAuthModal()
-    }
-  } catch {}
+  try { sessionStorage.removeItem('blog-show-auth') } catch {}
 })
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
@@ -259,6 +264,7 @@ onUnmounted(() => {
   font-size: 11px; font-weight: 700;
   flex-shrink: 0;
 }
+.user-avatar-image { object-fit: cover; }
 .user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .dropdown-menu {

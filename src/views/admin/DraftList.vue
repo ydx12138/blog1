@@ -34,6 +34,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getDrafts, deleteArticle, publishArticle } from '../../api/admin.js'
 import { useConfirm } from '../../composables/useConfirm.js'
+import { showError } from '../../composables/useNotice.js'
 
 const drafts = ref([])
 const loading = ref(false)
@@ -58,12 +59,12 @@ async function fetchData() {
 
 function goPage(p) { page.value = p; fetchData() }
 
-async function doPublish(id) { try { await publishArticle(id); fetchData() } catch (e) { alert(e.message) } }
+async function doPublish(id) { try { await publishArticle(id); fetchData() } catch (e) { showError(e.message) } }
 const { showConfirm } = useConfirm()
 
 async function doDelete(id) {
   const ok = await showConfirm('确定删除此草稿？')
-  if (ok) { try { await deleteArticle(id); fetchData() } catch (e) { alert(e.message) } }
+  if (ok) { try { await deleteArticle(id); fetchData() } catch (e) { showError(e.message) } }
 }
 
 onMounted(fetchData)

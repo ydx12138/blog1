@@ -18,7 +18,12 @@
     <div class="loading-msg" v-if="loading">加载中...</div>
 
     <!-- 表单 -->
-    <form class="editor-form" v-else @submit.prevent>
+    <form
+      class="editor-form"
+      :class="{ 'editor-form--richtext': form.content_type === 1 }"
+      v-else
+      @submit.prevent
+    >
       <!-- 1. 编辑器类型 -->
       <div class="field">
         <label class="field-label">编辑器类型</label>
@@ -111,7 +116,7 @@
 
       <!-- 5. 封面 -->
       <div class="field">
-        <label class="field-label">封面图片</label>
+        <label class="field-label">封面图片 <span class="required-mark">*</span></label>
         <ImageUpload :value="form.cover" @uploaded="form.cover = $event" />
       </div>
 
@@ -152,6 +157,7 @@ import { createArticle, updateArticle, getAdminArticle } from '../../api/admin.j
 import { fetchTags } from '../../api/articles.js'
 import { getCategories } from '../../api/categories.js'
 import { useAuth } from '../../stores/auth.js'
+import { showError } from '../../composables/useNotice.js'
 import ImageUpload from '../../components/ImageUpload.vue'
 
 import '@wangeditor/editor/dist/css/style.css'
@@ -258,7 +264,7 @@ const richEditorConfig = {
         uploadImage(file).then(data => {
           insertFn(data.url, '', '')
         }).catch(e => {
-          alert('图片上传失败：' + e.message)
+          showError('图片上传失败：' + e.message)
         })
       },
     },
@@ -275,7 +281,7 @@ async function onMdUploadImg(files, callback) {
       const data = await uploadImage(file)
       urls.push(data.url)
     } catch (e) {
-      alert('图片上传失败：' + e.message)
+      showError('图片上传失败：' + e.message)
     }
   }
   callback(urls)
@@ -303,7 +309,7 @@ async function loadArticle() {
       category_id: a.category_id || a.CategoryID || 0,
       tags: a.tags || '', status: a.status || 1,
     }
-  } catch (e) { alert('加载文章失败：' + e.message) }
+  } catch (e) { showError('加载文章失败：' + e.message) }
   loading.value = false
 }
 
@@ -311,7 +317,8 @@ async function saveDraft() { await save(1) }
 async function publish() { await save(2) }
 
 async function save(status) {
-  if (!form.value.title) { alert('请输入标题'); return }
+  if (!form.value.title) { showError('请输入标题'); return }
+  if (isNew.value && !form.value.cover.trim()) { showError('请上传封面图片'); return }
   saving.value = true
   try {
     const data = { ...form.value, status }
@@ -321,7 +328,7 @@ async function save(status) {
       await updateArticle(articleId.value, data)
     }
     router.push('/admin/articles')
-  } catch (e) { alert(e.message) }
+  } catch (e) { showError(e.message) }
   saving.value = false
 }
 
@@ -408,6 +415,12 @@ onMounted(async () => {
   flex-direction: column;
   gap: 24px;
 }
+.editor-form--richtext {
+  width: min(980px, calc(100% - 80px));
+  margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+}
 
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field-label {
@@ -415,6 +428,7 @@ onMounted(async () => {
   color: var(--text-secondary);
   letter-spacing: 0.5px;
 }
+.required-mark { color: var(--danger); }
 
 .field-input, .field-select, .field-textarea {
   padding: 10px 14px;
@@ -559,7 +573,10 @@ onMounted(async () => {
   flex-wrap: nowrap;
 }
 .richtext-editor :deep(.w-e-bar-item) { flex-shrink: 0; }
-.richtext-editor :deep(.w-e-text-container) { min-height: 550px; background: var(--bg); }
+.richtext-editor :deep(.w-e-text-container) {
+  min-height: 680px;
+  background: var(--bg);
+}
 .markdown-editor { min-height: 550px; }
 
 /* 底部栏 */
@@ -579,6 +596,15 @@ onMounted(async () => {
   .editor-topbar { padding: 0 12px; gap: 8px; }
   .topbar-title { font-size: 15px; }
   .editor-form { padding: 20px 12px; gap: 18px; }
+  .editor-form--richtext {
+    width: 100%;
+    margin: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .editor-form--richtext .richtext-editor :deep(.w-e-text-container) {
+    min-height: 550px;
+  }
   .editor-footer { flex-direction: column; align-items: center; }
   .btn-draft, .btn-publish { width: 100%; max-width: 360px; justify-content: center; }
 }

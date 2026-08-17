@@ -43,6 +43,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getUsers, banUser, unbanUser, deleteUser } from '../../api/admin.js'
 import { useConfirm } from '../../composables/useConfirm.js'
+import { showError } from '../../composables/useNotice.js'
 
 const users = ref([])
 const loading = ref(false)
@@ -69,13 +70,13 @@ function search() { page.value = 1; fetchData() }
 function onSearchInput() { clearTimeout(searchTimer); searchTimer = setTimeout(() => search(), 300) }
 function goPage(p) { page.value = p; fetchData() }
 
-async function ban(id) { try { await banUser(id); fetchData() } catch (e) { alert(e.message) } }
-async function unban(id) { try { await unbanUser(id); fetchData() } catch (e) { alert(e.message) } }
+async function ban(id) { try { await banUser(id); fetchData() } catch (e) { showError(e.message) } }
+async function unban(id) { try { await unbanUser(id); fetchData() } catch (e) { showError(e.message) } }
 const { showConfirm } = useConfirm()
 
 async function del(id) {
   const ok = await showConfirm('确定删除此用户？')
-  if (ok) { try { await deleteUser(id); fetchData() } catch (e) { alert(e.message) } }
+  if (ok) { try { await deleteUser(id); fetchData() } catch (e) { showError(e.message) } }
 }
 
 onMounted(fetchData)

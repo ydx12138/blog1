@@ -57,6 +57,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getAllComments, setCommentStatus, deleteComment } from '../../api/admin.js'
 import { useConfirm } from '../../composables/useConfirm.js'
+import { showError } from '../../composables/useNotice.js'
 
 const comments = ref([])
 const loading = ref(false)
@@ -97,7 +98,7 @@ const { showConfirm } = useConfirm()
 
 async function doDelete(id) {
   const ok = await showConfirm('确定删除此评论？')
-  if (ok) { try { await deleteComment(id); fetchData() } catch (e) { alert(e.message) } }
+  if (ok) { try { await deleteComment(id); fetchData() } catch (e) { showError(e.message) } }
 }
 
 async function setStatus(id, status) {
@@ -105,7 +106,7 @@ async function setStatus(id, status) {
     await setCommentStatus(id, status)
     const found = comments.value.find(c => c.id === id)
     if (found) found.status = status
-  } catch (e) { alert(e.message) }
+  } catch (e) { showError(e.message) }
 }
 
 onMounted(fetchData)

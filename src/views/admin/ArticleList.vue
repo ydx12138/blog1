@@ -57,6 +57,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getAdminArticles, deleteArticle as delArticle } from '../../api/admin.js'
 import { useConfirm } from '../../composables/useConfirm.js'
+import { showError } from '../../composables/useNotice.js'
 
 const articles = ref([])
 const loading = ref(false)
@@ -91,7 +92,7 @@ const { showConfirm } = useConfirm()
 
 async function deleteArticle(id) {
   const ok = await showConfirm('确定删除此文章？')
-  if (ok) { try { await delArticle(id); fetchData() } catch (e) { alert(e.message) } }
+  if (ok) { try { await delArticle(id); fetchData() } catch (e) { showError(e.message) } }
 }
 
 onMounted(fetchData)

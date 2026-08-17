@@ -9,7 +9,8 @@
     </router-link>
 
     <header class="profile-hero">
-      <span class="profile-avatar" aria-hidden="true">{{ initial }}</span>
+      <img v-if="profile.avatar" class="profile-avatar" :src="profile.avatar" :alt="profile.nickname || profile.email" />
+      <span v-else class="profile-avatar" aria-hidden="true">{{ initial }}</span>
       <div class="profile-heading">
         <p class="profile-kicker">ACCOUNT</p>
         <h1>个人资料</h1>
@@ -98,6 +99,7 @@ onMounted(async () => {
   font-size: 26px;
   font-weight: 700;
 }
+.profile-avatar { object-fit: cover; }
 
 .profile-heading { min-width: 0; }
 .profile-kicker {

@@ -26,6 +26,7 @@
 <script setup>
 import { ref } from 'vue'
 import { uploadImage } from '../api/admin.js'
+import { showError } from '../composables/useNotice.js'
 
 const emit = defineEmits(['uploaded'])
 const props = defineProps({ value: { type: String, default: '' } })
@@ -47,7 +48,7 @@ async function upload(file) {
     url.value = data.url
     preview.value = data.url
     emit('uploaded', data.url)
-  } catch (e) { alert(e.message) }
+  } catch (e) { showError(e.message) }
   uploading.value = false
 }
 

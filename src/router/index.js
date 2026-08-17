@@ -52,7 +52,6 @@ router.beforeEach((to) => {
 
   if (hasSession) return true
 
-  try { sessionStorage.setItem('blog-show-auth', '1') } catch {}
   window.dispatchEvent(new Event('show-auth-modal'))
   return { name: 'home' }
 })
