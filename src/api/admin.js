@@ -94,3 +94,34 @@ export function unbanUser(id) {
 export function deleteUser(id) {
   return request('DELETE', `${PREFIX}/users/${id}`, { id: numID(id) }, ADMIN)
 }
+
+// getAdminCategories 获取后台分类列表；参数 keyword 为分类名称关键词；返回分类及文章数量列表。
+export function getAdminCategories(keyword = '') {
+  const query = keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''
+  return request('GET', `${PREFIX}/categories${query}`, null, ADMIN)
+}
+
+// createAdminCategory 新增分类；参数 data 包含名称和描述；返回创建接口响应。
+export function createAdminCategory(data) {
+  return request('POST', `${PREFIX}/categories`, data, ADMIN)
+}
+
+// updateAdminCategory 修改分类；参数 id 为分类 ID，data 包含名称和描述；返回更新接口响应。
+export function updateAdminCategory(id, data) {
+  return request('PUT', `${PREFIX}/categories/${id}`, data, ADMIN)
+}
+
+// updateAdminCategorySort 持久化分类拖拽顺序；参数 ids 为从前到后的分类 ID；返回排序接口响应。
+export function updateAdminCategorySort(ids) {
+  return request('PUT', `${PREFIX}/categories/sort`, { ids }, ADMIN)
+}
+
+// getAdminCategoryArticleCount 获取分类下的文章数量；参数 id 为分类 ID；返回文章数量对象。
+export function getAdminCategoryArticleCount(id) {
+  return request('GET', `${PREFIX}/categories/${id}/article-count`, null, ADMIN)
+}
+
+// deleteAdminCategory 安全删除分类；参数 id 为分类 ID，data 为确认或迁移参数；返回删除接口响应。
+export function deleteAdminCategory(id, data = {}) {
+  return request('DELETE', `${PREFIX}/categories/${id}`, data, ADMIN)
+}

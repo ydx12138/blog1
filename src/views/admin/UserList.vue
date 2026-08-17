@@ -12,13 +12,14 @@
     </div>
 
     <div class="loading" v-if="loading">加载中...</div>
-    <table class="data-table" v-else-if="users.length">
+    <div class="table-scroll" v-else-if="users.length">
+    <table class="data-table">
       <thead><tr><th>ID</th><th>邮箱</th><th>昵称</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="u in users" :key="u.id">
           <td>{{ u.id }}</td>
-          <td>{{ u.email }}</td>
-          <td>{{ u.nickname }}</td>
+          <td :title="u.email">{{ u.email }}</td>
+          <td :title="u.nickname">{{ u.nickname }}</td>
           <td><span :class="['badge', u.status === 1 ? 'badge-ok' : 'badge-ban']">{{ u.status === 1 ? '正常' : '封禁' }}</span></td>
           <td>{{ u.created_at }}</td>
           <td class="actions">
@@ -29,6 +30,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
     <div class="empty" v-else>暂无用户</div>
 
     <div class="pagination" v-if="totalPages > 1">
@@ -88,8 +90,10 @@ onMounted(fetchData)
 .search-input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-size: 14px; outline: none; }
 .search-input:focus { border-color: var(--accent-border); }
 .status-select { height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-size: 14px; cursor: pointer; }
-.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; min-width: 760px; border-collapse: collapse; table-layout: fixed; }
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.data-table td:not(.actions) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .data-table th { font-weight: 600; color: var(--text-secondary); font-size: 12px; }
 .badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 12px; }
 .badge-ok { background: #dcfce7; color: #166534; }

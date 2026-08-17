@@ -9,7 +9,8 @@
     </div>
 
     <div class="loading" v-if="loading">加载中...</div>
-    <table class="data-table" v-else-if="articles.length">
+    <div class="table-scroll" v-else-if="articles.length">
+    <table class="data-table">
       <colgroup>
         <col style="width:50px">
         <col style="width:60px">
@@ -28,8 +29,8 @@
           <td class="cover-cell">
             <img v-if="a.cover" :src="a.cover" class="cover-thumb" @error="$event.target.style.display='none'" />
           </td>
-          <td class="title-cell">{{ a.title }}</td>
-          <td>{{ a.Category?.name || '-' }}</td>
+          <td class="title-cell" :title="a.title">{{ a.title }}</td>
+          <td :title="a.Category?.name || '-'">{{ a.Category?.name || '-' }}</td>
           <td>{{ a.view_count }}</td>
           <td>{{ a.like_count }}</td>
           <td>{{ a.comment_count }}</td>
@@ -42,6 +43,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
     <div class="empty" v-else>暂无文章</div>
 
     <!-- 分页 -->
@@ -104,8 +106,10 @@ onMounted(fetchData)
 .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; }
 .search-input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-size: 14px; outline: none; }
 .search-input:focus { border-color: var(--accent-border); }
-.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; min-width: 930px; border-collapse: collapse; table-layout: fixed; }
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.data-table td:not(.actions) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .data-table th { font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; }
 .title-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cover-cell { padding: 6px 14px; }

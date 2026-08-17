@@ -26,9 +26,11 @@ const routes = [
     children: [
       { path: '', name: 'admin-dashboard', component: () => import('../views/admin/Dashboard.vue') },
       { path: 'articles', name: 'admin-articles', component: () => import('../views/admin/ArticleList.vue') },
+      { path: 'categories', name: 'admin-categories', component: () => import('../views/admin/CategoryManagement.vue') },
       { path: 'drafts', name: 'admin-drafts', component: () => import('../views/admin/DraftList.vue') },
       { path: 'comments', name: 'admin-comments', component: () => import('../views/admin/CommentReview.vue') },
       { path: 'users', name: 'admin-users', component: () => import('../views/admin/UserList.vue') },
+      { path: 'site', name: 'admin-site', component: () => import('../views/admin/SiteManagement.vue') },
     ],
   },
 

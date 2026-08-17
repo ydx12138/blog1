@@ -9,7 +9,8 @@
     </div>
 
     <div class="loading" v-if="loading">加载中...</div>
-    <table class="data-table" v-else-if="comments.length">
+    <div class="table-scroll" v-else-if="comments.length">
+    <table class="data-table">
       <colgroup>
         <col style="width:50px">
         <col style="width:200px">
@@ -26,8 +27,8 @@
             <span class="article-title" :title="c.article_title">{{ c.article_title }}</span>
             <span class="article-id">#{{ c.article_id }}</span>
           </td>
-          <td>{{ c.nickname }}</td>
-          <td class="content-cell">{{ c.content }}</td>
+          <td :title="c.nickname">{{ c.nickname }}</td>
+          <td class="content-cell" :title="c.content">{{ c.content }}</td>
           <td><span :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></td>
           <td>{{ formatDate(c.created_at) }}</td>
           <td class="actions">
@@ -43,6 +44,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
     <div class="empty" v-else>暂无评论</div>
 
     <div class="pagination" v-if="totalPages > 1">
@@ -121,8 +123,10 @@ onMounted(fetchData)
 .toggle-btn:hover { border-color: var(--accent-border); color: var(--accent); }
 .toggle-active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .toggle-active:hover { color: #fff; }
-.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; min-width: 930px; border-collapse: collapse; table-layout: fixed; }
 .data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.data-table td:not(.actions) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .data-table th { font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; }
 .content-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .article-cell { display: flex; flex-direction: column; gap: 2px; }
