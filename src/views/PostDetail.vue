@@ -55,6 +55,9 @@
     <section class="comments-section" v-if="article">
       <h2 class="comments-title">评论 ({{ totalComments }})</h2>
 
+      <div v-if="!siteSettings.commentsEnabled" class="comments-disabled">评论功能暂未开放</div>
+
+      <template v-else>
       <div class="comment-form" v-if="isLoggedIn">
         <textarea
           v-model="commentText"
@@ -86,6 +89,7 @@
         </div>
       </div>
       <p class="empty-comments" v-else-if="!loadingComments">暂无评论，来做第一个评论的人吧</p>
+      </template>
     </section>
   </div>
 </template>
@@ -96,6 +100,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getArticleDetail, likeArticle } from '../api/articles.js'
 import { getComments, createComment } from '../api/comments.js'
 import { useAuth } from '../stores/auth.js'
+import { siteSettings } from '../data/site.js'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 
@@ -181,6 +186,10 @@ async function fetchComments() {
 
 async function submitComment() {
   commentError.value = ''
+  if (!siteSettings.commentsEnabled) {
+    commentError.value = '评论功能暂未开放'
+    return
+  }
   if (!commentText.value.trim()) return
   submitting.value = true
   try {
@@ -296,6 +305,7 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 /* 评论区 */
 .comments-section { border-top: 2px solid var(--accent); padding-top: 32px; }
 .comments-title { font-family: var(--font-serif); font-size: 20px; font-weight: 600; color: var(--heading); margin-bottom: 24px; }
+.comments-disabled { padding: 24px 0 10px; color: var(--text-muted); font-size: 14px; text-align: center; }
 
 .comment-form { margin-bottom: 32px; }
 .comment-input {

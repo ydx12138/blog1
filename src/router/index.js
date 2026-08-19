@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { loadSiteSettings, siteSettings } from '../data/site.js'
 
 const routes = [
   // === 用户端 ===
@@ -44,7 +45,15 @@ const router = createRouter({
   scrollBehavior() { return { top: 0 } },
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  if (to.path === '/categories' || to.path.startsWith('/categories/')) {
+    await loadSiteSettings().catch(() => {})
+    if (!siteSettings.categoriesEnabled) return { name: 'home' }
+  }
+  if (to.path === '/about') {
+    await loadSiteSettings().catch(() => {})
+    if (!siteSettings.profileEnabled) return { name: 'home' }
+  }
   if (!to.meta.requiresUser) return true
 
   let hasSession = false

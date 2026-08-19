@@ -6,7 +6,7 @@
     <!-- 导航链接 -->
     <nav class="sidebar-nav">
       <router-link
-        v-for="item in site.nav"
+        v-for="item in navItems"
         :key="item.label"
         :to="item.path"
         class="nav-link"
@@ -62,12 +62,17 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { site } from '../data/site.js'
+import { site, siteSettings } from '../data/site.js'
 import { useAuth } from '../stores/auth.js'
 import AuthModal from './AuthModal.vue'
 
 const { user, isLoggedIn, refreshUser, logout } = useAuth()
 const router = useRouter()
+const navItems = computed(() => site.nav.filter((item) => {
+  if (item.path === '/categories') return siteSettings.categoriesEnabled
+  if (item.path === '/about') return siteSettings.profileEnabled
+  return true
+}))
 
 // ---- 主题 ----
 const STORAGE_KEY = 'blog-theme'

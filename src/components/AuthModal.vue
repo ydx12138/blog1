@@ -177,6 +177,8 @@
 <script setup>
 import { computed, onBeforeUnmount, reactive, ref } from 'vue'
 import { useAuth } from '../stores/auth.js'
+import { siteSettings } from '../data/site.js'
+import { showError } from '../composables/useNotice.js'
 
 const emit = defineEmits(['close'])
 defineProps({ visible: { type: Boolean, default: false } })
@@ -229,6 +231,10 @@ function codeButtonText(sending, countdown) {
 }
 
 function switchToRegister() {
+  if (!siteSettings.registerEnabled) {
+    showError('功能升级中')
+    return
+  }
   mode.value = 'register'
   clearMessages()
 }
@@ -399,7 +405,11 @@ async function handleRegister() {
     resetRegisterForm()
     mode.value = 'login'
   } catch (e) {
-    registerError.value = e.message || '注册失败'
+    if (e.code === 1009) {
+      showError('功能升级中')
+    } else {
+      registerError.value = e.message || '注册失败'
+    }
   } finally {
     registerLoading.value = false
   }
