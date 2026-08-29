@@ -11,7 +11,10 @@
     </div>
 
     <!-- 页码 -->
-    <div class="pagination" v-if="totalPages > 1">
+    <div class="continuous-end" v-if="continuous && posts.length && !loading">
+      <span></span><p>{{ loadingMore ? '正在加载更多文章' : hasMore ? '继续向下浏览更多文章' : '没有更多文章了' }}</p><span></span>
+    </div>
+    <div class="pagination" v-else-if="totalPages > 1">
       <button class="page-btn" :disabled="page <= 1" @click="$emit('page-change', page - 1)">上一页</button>
       <template v-for="p in pages" :key="p">
         <span v-if="p === '...'" class="page-ellipsis">...</span>
@@ -32,6 +35,9 @@ const props = defineProps({
   page: { type: Number, default: 1 },
   total: { type: Number, default: 0 },
   pageSize: { type: Number, default: 10 },
+  continuous: { type: Boolean, default: false },
+  loadingMore: { type: Boolean, default: false },
+  hasMore: { type: Boolean, default: false },
 })
 
 defineEmits(['page-change'])
@@ -68,6 +74,9 @@ const pages = computed(() => {
   display: flex; justify-content: center; align-items: center; gap: 4px;
   padding: 32px 0 40px;
 }
+.continuous-end { display: flex; align-items: center; gap: 12px; padding: 34px 0 10px; color: var(--text-muted); font-size: 12px; }
+.continuous-end span { height: 1px; flex: 1; background: var(--border-light); }
+.continuous-end p { white-space: nowrap; }
 .page-btn {
   min-width: 34px; height: 34px; padding: 0 8px;
   border: 1px solid var(--border); border-radius: var(--radius-sm);

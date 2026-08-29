@@ -36,6 +36,19 @@
                 </button>
               </div>
             </div>
+            <div class="form-field">
+              <div class="label-row">
+                <label for="login-captcha">图形验证码</label>
+                <span class="captcha-hint">点击图片刷新</span>
+              </div>
+              <div class="captcha-row">
+                <input id="login-captcha" v-model.trim="loginForm.captchaCode" type="text" maxlength="4" placeholder="请输入图中字符" autocomplete="off" required />
+                <button type="button" class="captcha-image-button" :disabled="captchaLoading" title="点击刷新验证码" aria-label="刷新图形验证码" @click="loadCaptcha">
+                  <img v-if="captchaImage" :src="captchaImage" alt="图形验证码" />
+                  <span v-else>{{ captchaLoading ? '加载中' : '重新加载' }}</span>
+                </button>
+              </div>
+            </div>
             <p class="form-error" v-if="loginError">{{ loginError }}</p>
             <button type="submit" class="btn-submit" :disabled="loginLoading">
               {{ loginLoading ? '登录中...' : '登 录' }}
@@ -175,16 +188,17 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useAuth } from '../stores/auth.js'
 import { siteSettings } from '../data/site.js'
 import { showError } from '../composables/useNotice.js'
 
 const emit = defineEmits(['close'])
-defineProps({ visible: { type: Boolean, default: false } })
+const props = defineProps({ visible: { type: Boolean, default: false } })
 
 const {
   login,
+  getCaptcha,
   register,
   sendRegisterCode,
   sendPasswordResetCode,
@@ -198,6 +212,9 @@ const registerNotice = ref('')
 const resetError = ref('')
 const resetNotice = ref('')
 const loginLoading = ref(false)
+const captchaLoading = ref(false)
+const captchaId = ref('')
+const captchaImage = ref('')
 const registerLoading = ref(false)
 const resetLoading = ref(false)
 const registerCodeSending = ref(false)
@@ -207,7 +224,7 @@ const resetCodeCountdown = ref(0)
 let registerCodeTimer = null
 let resetCodeTimer = null
 
-const loginForm = reactive({ email: '', password: '' })
+const loginForm = reactive({ email: '', password: '', captchaCode: '' })
 const registerForm = reactive({ email: '', code: '', nickname: '', password: '', confirmPassword: '' })
 const resetForm = reactive({ email: '', code: '', password: '', confirmPassword: '' })
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -242,6 +259,7 @@ function switchToRegister() {
 function switchToLogin() {
   mode.value = 'login'
   clearMessages()
+  loadCaptcha()
 }
 
 function switchToForgot() {
@@ -330,22 +348,46 @@ function validatePasswordPair(form, setError) {
 
 async function handleLogin() {
   loginError.value = ''
-  if (!loginForm.email || !loginForm.password) {
-    loginError.value = '请填写邮箱和密码'
+  if (!loginForm.email || !loginForm.password || !loginForm.captchaCode) {
+    loginError.value = '请填写邮箱、密码和图形验证码'
+    return
+  }
+  if (loginForm.captchaCode.length !== 4 || !captchaId.value) {
+    loginError.value = '请输入 4 位图形验证码'
     return
   }
   loginLoading.value = true
   try {
-    const result = await login(loginForm.email, loginForm.password)
+    const result = await login(loginForm.email, loginForm.password, captchaId.value, loginForm.captchaCode)
     if (result.success) {
       emit('close')
       loginForm.email = ''
       loginForm.password = ''
+      loginForm.captchaCode = ''
     }
   } catch (e) {
     loginError.value = e.message || '登录失败'
+    await loadCaptcha()
   } finally {
     loginLoading.value = false
+  }
+}
+
+// loadCaptcha 获取新的图形验证码；无参数；返回验证码加载 Promise，并更新登录表单使用的验证码 ID 与图片。
+async function loadCaptcha() {
+  if (captchaLoading.value) return
+  captchaLoading.value = true
+  loginForm.captchaCode = ''
+  try {
+    const data = await getCaptcha()
+    captchaId.value = data.captchaId
+    captchaImage.value = data.picBase64
+  } catch (e) {
+    captchaId.value = ''
+    captchaImage.value = ''
+    loginError.value = e.message || '图形验证码加载失败'
+  } finally {
+    captchaLoading.value = false
   }
 }
 
@@ -440,6 +482,10 @@ async function handleResetPassword() {
     resetLoading.value = false
   }
 }
+
+watch(() => props.visible, (visible) => {
+  if (visible && mode.value === 'login') loadCaptcha()
+})
 
 onBeforeUnmount(() => clearCountdown())
 </script>
@@ -554,6 +600,44 @@ onBeforeUnmount(() => clearCountdown())
   grid-template-columns: minmax(0, 1fr) 112px;
   gap: 8px;
 }
+.captcha-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 116px;
+  gap: 8px;
+}
+.captcha-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.captcha-image-button {
+  width: 116px;
+  height: 42px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.captcha-image-button:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.captcha-image-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.captcha-image-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.captcha-image-button span {
+  font-size: 12px;
+}
 .btn-code {
   height: 42px;
   border: 1px solid var(--accent-border);
@@ -617,5 +701,7 @@ onBeforeUnmount(() => clearCountdown())
 @media (max-width: 420px) {
   .code-row { grid-template-columns: 1fr; }
   .btn-code { width: 100%; }
+  .captcha-row { grid-template-columns: minmax(0, 1fr) 108px; }
+  .captcha-image-button { width: 108px; }
 }
 </style>

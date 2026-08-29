@@ -56,8 +56,8 @@ export function useAuth() {
     }
   })
 
-  async function login(email, password) {
-    const data = await authApi.login(email, password)
+  async function login(email, password, captchaId, captchaCode) {
+    const data = await authApi.login(email, password, captchaId, captchaCode)
     const user = { id: data.id, email: data.email, nickname: data.nickname, avatar: data.avatar }
     state.user = user
     writeJson(USER_KEY, user)
@@ -131,6 +131,7 @@ export function useAuth() {
     isAdmin,
     token,
     login,
+    getCaptcha: authApi.getCaptcha,
     refreshUser,
     register,
     sendRegisterCode,

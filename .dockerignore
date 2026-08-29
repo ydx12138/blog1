@@ -1,4 +1,7 @@
+# 前端构建不需要本地依赖、产物和版本控制数据。
 node_modules/
 dist/
 .git/
-*.md
+.env
+.env.*
+npm-debug.log*

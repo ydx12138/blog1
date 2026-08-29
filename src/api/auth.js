@@ -1,7 +1,17 @@
 import { request } from './client.js'
 
-export function login(email, password) {
-  return request('POST', '/api/login', { email, password })
+// getCaptcha 获取登录图形验证码；无参数；返回验证码 ID 和可直接显示的 Base64 图片。
+export function getCaptcha() {
+  return request('GET', '/api/captcha')
+}
+
+export function login(email, password, captchaId, captchaCode) {
+  return request('POST', '/api/login', {
+    email,
+    password,
+    captcha_id: captchaId,
+    captcha_code: captchaCode,
+  })
 }
 
 export function sendRegisterCode(email) {
