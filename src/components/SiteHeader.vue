@@ -125,14 +125,22 @@ function handleLogout() {
 }
 function handleClickOutside(e) { if (dropdownRef.value && !dropdownRef.value.contains(e.target)) dropdownOpen.value = false }
 function openAuthModal() { showAuthModal.value = true }
+// handleSessionForcedLogout 响应后端单点登录或封禁通知；无参数无返回值，关闭用户界面并回到首页。
+function handleSessionForcedLogout() {
+  dropdownOpen.value = false
+  showAuthModal.value = false
+  router.replace({ name: 'home' })
+}
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('show-auth-modal', openAuthModal)
+  window.addEventListener('blog:session-replaced', handleSessionForcedLogout)
   try { sessionStorage.removeItem('blog-show-auth') } catch {}
 })
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('show-auth-modal', openAuthModal)
+  window.removeEventListener('blog:session-replaced', handleSessionForcedLogout)
 })
 </script>
 

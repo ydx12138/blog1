@@ -72,6 +72,18 @@
             <span>Email</span>
             <input v-model.trim="site.author.email" type="email" placeholder="name@example.com" />
           </label>
+          <label class="field field-wide about-field">
+            <span class="field-label">
+              <span>关于我</span>
+              <small>{{ site.author.about.length }}/2000</small>
+            </span>
+            <textarea
+              v-model="site.author.about"
+              maxlength="2000"
+              rows="8"
+              placeholder="输入展示在前台“我的”页面中的个人介绍，支持使用换行划分段落。"
+            ></textarea>
+          </label>
         </div>
       </section>
 
@@ -106,6 +118,7 @@ function editableSettings() {
     profileGithub: site.author.github,
     profileEmail: site.author.email,
     profileAvatar: site.author.avatar,
+    profileAbout: site.author.about,
   })
 }
 
@@ -173,6 +186,11 @@ onMounted(loadSettings)
 .field span { color: var(--text-secondary); font-size: 13px; font-weight: 500; }
 .field input { box-sizing: border-box; width: 100%; height: 40px; padding: 0 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; background: var(--bg); color: var(--text); font: inherit; font-size: 14px; transition: border-color var(--transition), box-shadow var(--transition); }
 .field input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-light); }
+.field-label { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.field-label small { color: var(--text-muted); font-size: 12px; font-weight: 400; }
+.about-field textarea { box-sizing: border-box; width: 100%; min-height: 176px; resize: vertical; padding: 12px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; background: var(--bg); color: var(--text); font: inherit; font-size: 14px; line-height: 1.75; transition: border-color var(--transition), box-shadow var(--transition); }
+.about-field textarea:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-light); }
+.about-field textarea::placeholder { color: var(--text-muted); }
 .avatar-setting { display: flex; align-items: center; gap: 14px; min-height: 56px; }
 .site-avatar { display: grid; width: 56px; height: 56px; flex: 0 0 56px; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: var(--bg); color: var(--text-muted); object-fit: cover; }
 .avatar-button { height: 36px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; font: inherit; font-size: 13px; }

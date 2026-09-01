@@ -4,17 +4,7 @@
 
     <div class="about-content">
       <h2 class="section-title">关于我</h2>
-      <p>
-        你好，我是 <strong>{{ site.author.name }}</strong>，一名 Go 工程师，目前生活在{{ site.author.location }}。
-      </p>
-      <p>
-        我喜欢简洁的设计、高效的开发工具，和一切能让工作变得更优雅的事物。
-        这个博客记录我在后端开发、开源项目和个人成长方面的心得。
-      </p>
-      <p>
-        本博客使用 Vue 3 + Vite 构建前端，Go + Gin 构建后端 API，
-        追求简洁、温暖、易读的阅读体验。
-      </p>
+      <p v-for="(paragraph, index) in aboutParagraphs" :key="index">{{ paragraph }}</p>
 
       <h2 class="section-title">联系我</h2>
       <div class="contact-links">
@@ -43,11 +33,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { site } from '../data/site.js'
 import ProfileSection from '../components/ProfileSection.vue'
 
 const showEmail = ref(false)
+const aboutParagraphs = computed(() => String(site.author.about || '')
+  .split(/\r?\n/)
+  .map((paragraph) => paragraph.trim())
+  .filter(Boolean))
 </script>
 
 <style scoped>

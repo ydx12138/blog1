@@ -1,7 +1,7 @@
 <template>
   <section class="post-list-section">
     <div class="post-list" v-if="posts.length">
-      <PostCard v-for="post in posts" :key="post.id" :post="post" />
+      <PostCard v-for="post in posts" :key="post.id" :post="post" :highlight="highlight" :variant="variant" />
     </div>
     <div class="empty" v-else-if="!loading">
       <p>暂无文章</p>
@@ -11,7 +11,11 @@
     </div>
 
     <!-- 页码 -->
-    <div class="continuous-end" v-if="continuous && posts.length && !loading">
+    <div class="continuous-loading" v-if="continuous && loadingMore" role="status">
+      <span class="loading-spinner" aria-hidden="true"></span>
+      <p>正在加载更多文章</p>
+    </div>
+    <div class="continuous-end" v-if="continuous && posts.length && !loading && !loadingMore">
       <span></span><p>{{ loadingMore ? '正在加载更多文章' : hasMore ? '继续向下浏览更多文章' : '没有更多文章了' }}</p><span></span>
     </div>
     <div class="pagination" v-else-if="totalPages > 1">
@@ -38,6 +42,8 @@ const props = defineProps({
   continuous: { type: Boolean, default: false },
   loadingMore: { type: Boolean, default: false },
   hasMore: { type: Boolean, default: false },
+  highlight: { type: String, default: '' },
+  variant: { type: String, default: 'default' },
 })
 
 defineEmits(['page-change'])
@@ -77,6 +83,9 @@ const pages = computed(() => {
 .continuous-end { display: flex; align-items: center; gap: 12px; padding: 34px 0 10px; color: var(--text-muted); font-size: 12px; }
 .continuous-end span { height: 1px; flex: 1; background: var(--border-light); }
 .continuous-end p { white-space: nowrap; }
+.continuous-loading { display: flex; justify-content: center; align-items: center; gap: 9px; padding: 28px 0 10px; color: var(--text-muted); font-size: 12px; }
+.loading-spinner { width: 13px; height: 13px; border: 2px solid var(--border-light); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .page-btn {
   min-width: 34px; height: 34px; padding: 0 8px;
   border: 1px solid var(--border); border-radius: var(--radius-sm);

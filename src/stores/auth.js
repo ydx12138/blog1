@@ -82,6 +82,13 @@ export function useAuth() {
     return nextUser
   }
 
+  // setUserAvatar 同步当前用户头像到响应式状态和本地缓存；参数为头像 URL；无返回值。
+  function setUserAvatar(avatar) {
+    if (!state.user) return
+    state.user = { ...state.user, avatar }
+    writeJson(USER_KEY, state.user)
+  }
+
   async function register(formData) {
     await authApi.register(formData)
     return { success: true, message: '注册成功' }
@@ -133,6 +140,7 @@ export function useAuth() {
     login,
     getCaptcha: authApi.getCaptcha,
     refreshUser,
+    setUserAvatar,
     register,
     sendRegisterCode,
     sendPasswordResetCode,

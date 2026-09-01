@@ -11,6 +11,7 @@ export const site = reactive({
     location: '中国',
     github: 'https://github.com/ydx12138',
     email: '2675723732@qq.com',
+    about: '',
   },
   nav: [
     { label: '首页', path: '/' },
@@ -42,6 +43,7 @@ function applySiteSettings(data = {}) {
   if (typeof data.profile_github === 'string') site.author.github = data.profile_github
   if (typeof data.profile_email === 'string') site.author.email = data.profile_email
   if (typeof data.profile_avatar === 'string') site.author.avatar = data.profile_avatar.trim()
+  if (typeof data.profile_about === 'string') site.author.about = data.profile_about
 }
 
 export function loadSiteSettings() {
@@ -68,5 +70,6 @@ export function buildSiteSettingsPayload(settings) {
     profile_github: settings.profileGithub,
     profile_email: settings.profileEmail,
     profile_avatar: settings.profileAvatar,
+    profile_about: settings.profileAbout,
   }
 }

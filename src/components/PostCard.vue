@@ -1,12 +1,22 @@
 <template>
-  <article class="post-card" @click="goPost">
+  <article class="post-card" :class="{ 'post-card--search': variant === 'search' }" @click="goPost">
     <!-- 封面图 -->
-    <div class="post-cover" v-if="post.cover">
+    <div class="post-cover" v-if="post.cover && variant !== 'search'">
       <img :src="post.cover" :alt="post.title" @error="onCoverError" />
     </div>
     <div class="post-body">
-      <span class="post-title">{{ post.title }}</span>
-      <p class="post-excerpt" v-if="post.summary">{{ post.summary }}</p>
+      <span class="post-title">
+        <template v-for="(part, index) in highlightedTitle" :key="`title-${index}`">
+          <mark v-if="part.highlighted" class="search-highlight">{{ part.text }}</mark>
+          <template v-else>{{ part.text }}</template>
+        </template>
+      </span>
+      <p class="post-excerpt" v-if="excerptText">
+        <template v-for="(part, index) in highlightedSummary" :key="`summary-${index}`">
+          <mark v-if="part.highlighted" class="search-highlight">{{ part.text }}</mark>
+          <template v-else>{{ part.text }}</template>
+        </template>
+      </p>
       <div class="post-meta">
         <time class="post-date" :datetime="post.created_at">{{ formattedDate }}</time>
         <span class="meta-sep" v-if="post.category_name">·</span>
@@ -44,6 +54,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const props = defineProps({
   post: { type: Object, required: true },
+  highlight: { type: String, default: '' },
+  variant: { type: String, default: 'default' },
 })
 
 function goPost() {
@@ -61,6 +73,28 @@ const tags = computed(() => {
   if (Array.isArray(props.post.tags)) return props.post.tags
   return props.post.tags.split(',').map(t => t.trim()).filter(Boolean)
 })
+
+const highlightedTitle = computed(() => splitHighlightedText(props.post.title))
+const excerptText = computed(() => props.post.search_excerpt || props.post.summary || '')
+const highlightedSummary = computed(() => splitHighlightedText(excerptText.value))
+
+// 将匹配词拆成安全文本片段；参数为待处理文本，返回带高亮标记的片段数组。
+function splitHighlightedText(value) {
+  const text = String(value ?? '')
+  const keyword = props.highlight.trim()
+  if (!keyword) return [{ text, highlighted: false }]
+
+  const matcher = new RegExp(`(${escapeRegExp(keyword)})`, 'gi')
+  return text.split(matcher).filter(Boolean).map((part) => ({
+    text: part,
+    highlighted: part.toLocaleLowerCase() === keyword.toLocaleLowerCase(),
+  }))
+}
+
+// 转义正则特殊字符；参数为用户输入关键词，返回可安全用于正则的文本。
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
 
 function fmt(n) {
   if (n == null) return '0'
@@ -112,6 +146,16 @@ function onCoverError(e) {
   margin-bottom: 6px;
 }
 .post-card:hover .post-title { color: var(--accent); }
+.post-card--search { padding: 26px 0; }
+.post-card--search .post-title { font-size: 22px; }
+.search-highlight {
+  padding: 0 2px;
+  border-radius: 2px;
+  background: #ffe57f;
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
 
 .post-excerpt {
   font-size: 14px;

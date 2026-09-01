@@ -67,7 +67,10 @@ const OUTPUT_SIZE = 320
 const VIEWPORT_INSET = (STAGE_SIZE - VIEWPORT_SIZE) / 2
 
 const emit = defineEmits(['close', 'uploaded'])
-defineProps({ visible: { type: Boolean, default: false } })
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  uploadHandler: { type: Function, default: uploadImage },
+})
 
 const fileInput = ref(null)
 const stageRef = ref(null)
@@ -228,7 +231,7 @@ async function confirmCrop() {
   uploading.value = true
   try {
     const file = await createCroppedFile()
-    const data = await uploadImage(file)
+    const data = await props.uploadHandler(file)
     emit('uploaded', data.url)
     handleClose(true)
   } catch (error) {

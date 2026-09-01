@@ -6,8 +6,9 @@ const routes = [
   { path: '/', name: 'home', component: () => import('../views/HomePage.vue') },
   { path: '/posts', redirect: '/' },
   { path: '/posts/:id', name: 'post-detail', component: () => import('../views/PostDetail.vue') },
+  { path: '/search', name: 'search', component: () => import('../views/SearchResultsPage.vue') },
   { path: '/categories', name: 'categories', component: () => import('../views/CategoriesPage.vue') },
-  { path: '/categories/:id', name: 'category', component: () => import('../views/CategoryPage.vue') },
+  { path: '/categories/:id', name: 'category', redirect: (to) => ({ name: 'categories', query: { category_id: to.params.id } }) },
   { path: '/about', name: 'about', component: () => import('../views/AboutPage.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/ProfilePage.vue'), meta: { requiresUser: true } },
 

@@ -15,7 +15,17 @@ export function getArticleDetail(id) {
 }
 // 搜索文章
 export function searchArticles(keyword) {
-  return request('GET', `/api/articles/search?keyword=${encodeURIComponent(keyword)}`)
+	return request('GET', `/api/articles/search?keyword=${encodeURIComponent(keyword)}`)
+}
+
+// 搜索独立结果页文章，返回带命中片段的真实文章列表。
+export function searchArticleResults(keyword) {
+	return request('GET', `/api/articles/search/results?keyword=${encodeURIComponent(keyword)}`)
+}
+
+// 获取搜索框真实建议文章，返回最多十条带命中片段的文章列表。
+export function searchArticleSuggestions(keyword) {
+	return request('GET', `/api/articles/search/suggestions?keyword=${encodeURIComponent(keyword)}`)
 }
 // 点赞文章
 export function likeArticle(articleId) {
