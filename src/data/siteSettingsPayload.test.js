@@ -14,10 +14,14 @@ test('buildSiteSettingsPayload includes the cropped avatar URL', () => {
     profileEmail: 'name@example.com',
     profileAvatar: 'https://cdn.example.com/avatar.png',
     profileAbout: '第一段\n\n第二段',
+    userTokenExpireMinutes: 30,
+    adminTokenExpireMinutes: 120,
   })
 
   assert.equal(payload.profile_avatar, 'https://cdn.example.com/avatar.png')
   assert.equal(payload.profile_about, '第一段\n\n第二段')
+  assert.equal(payload.user_token_expire_minutes, 30)
+  assert.equal(payload.admin_token_expire_minutes, 120)
 })
 
 test('applySiteSettingsData keeps an empty profile about value', () => {

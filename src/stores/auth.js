@@ -116,8 +116,8 @@ export function useAuth() {
     removeItem(REFRESH_TOKEN_KEY)
   }
 
-  async function adminLoginFn(username, password) {
-    const data = await authApi.adminLogin(username, password)
+  async function adminLoginFn(username, password, captchaId, captchaCode) {
+    const data = await authApi.adminLogin(username, password, captchaId, captchaCode)
     const user = { username: data.username, nickname: data.nickname }
     state.adminUser = user
     writeJson(ADMIN_USER_KEY, user)

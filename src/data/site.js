@@ -30,6 +30,8 @@ export const siteSettings = reactive({
   categoriesEnabled: true,
   profileEnabled: true,
   commentsEnabled: true,
+  userTokenExpireMinutes: 15,
+  adminTokenExpireMinutes: 10080,
 })
 
 let settingsPromise = null
@@ -44,6 +46,8 @@ function applySiteSettings(data = {}) {
   if (typeof data.profile_email === 'string') site.author.email = data.profile_email
   if (typeof data.profile_avatar === 'string') site.author.avatar = data.profile_avatar.trim()
   if (typeof data.profile_about === 'string') site.author.about = data.profile_about
+  if (Number.isInteger(data.user_token_expire_minutes)) siteSettings.userTokenExpireMinutes = data.user_token_expire_minutes
+  if (Number.isInteger(data.admin_token_expire_minutes)) siteSettings.adminTokenExpireMinutes = data.admin_token_expire_minutes
 }
 
 export function loadSiteSettings() {
@@ -71,5 +75,7 @@ export function buildSiteSettingsPayload(settings) {
     profile_email: settings.profileEmail,
     profile_avatar: settings.profileAvatar,
     profile_about: settings.profileAbout,
+    user_token_expire_minutes: settings.userTokenExpireMinutes,
+    admin_token_expire_minutes: settings.adminTokenExpireMinutes,
   }
 }

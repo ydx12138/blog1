@@ -31,7 +31,7 @@
 
       <div class="post-body">
         <div v-if="article.content_type === 1" class="rich-text" v-html="article.content"></div>
-        <MdPreview v-else-if="article.content_type === 2" :modelValue="article.content" />
+        <MdPreview v-else-if="article.content_type === 2" :modelValue="article.content" :theme="previewTheme" />
         <div v-else class="rich-text" v-html="article.content"></div>
       </div>
     </article>
@@ -95,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticleDetail, likeArticle } from '../api/articles.js'
 import { getComments, createComment } from '../api/comments.js'
@@ -108,6 +108,12 @@ const route = useRoute()
 const router = useRouter()
 const articleId = computed(() => Number(route.params.id))
 const { isLoggedIn } = useAuth()
+const previewTheme = ref('light')
+let themeObserver
+
+function syncPreviewTheme() {
+  previewTheme.value = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
+}
 
 function goBack() {
   // 优先回退浏览器历史，回退不了则去首页
@@ -204,7 +210,13 @@ function showAuth() {
   window.dispatchEvent(new CustomEvent('show-auth-modal'))
 }
 
-onMounted(() => { fetchArticle(); fetchComments() })
+onMounted(() => {
+  syncPreviewTheme()
+  themeObserver = new MutationObserver(syncPreviewTheme)
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+  fetchArticle(); fetchComments()
+})
+onUnmounted(() => themeObserver?.disconnect())
 watch(articleId, () => { fetchArticle(); fetchComments() })
 </script>
 
@@ -291,6 +303,43 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
   font-size: 17px; line-height: 1.85; color: var(--text);
   margin-bottom: 48px;
 }
+.post-body :deep(.md-editor),
+.post-body :deep(.md-editor-previewOnly),
+.post-body :deep(.md-editor-preview) {
+  color: var(--text);
+  background: transparent;
+  border-color: var(--border-light);
+}
+.post-body :deep(.md-editor-preview) { padding: 0; }
+.post-body :deep(.md-editor-preview h1),
+.post-body :deep(.md-editor-preview h2),
+.post-body :deep(.md-editor-preview h3),
+.post-body :deep(.md-editor-preview h4),
+.post-body :deep(.md-editor-preview h5),
+.post-body :deep(.md-editor-preview h6) { color: var(--heading); }
+.post-body :deep(.md-editor-preview table),
+.post-body :deep(.md-editor-preview th),
+.post-body :deep(.md-editor-preview td) { border-color: var(--border); }
+.post-body :deep(.md-editor-preview th) {
+  background: var(--tag-bg);
+  color: var(--heading);
+}
+.post-body :deep(.md-editor-preview tr:nth-child(2n)) { background: var(--accent-light); }
+.post-body :deep(.md-editor-preview blockquote) {
+  color: var(--text-secondary);
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.post-body :deep(.md-editor-preview code) {
+  color: var(--accent);
+  background: var(--tag-bg);
+}
+.post-body :deep(.md-editor-preview .md-editor-code pre code),
+.post-body :deep(.md-editor-preview .md-editor-code .md-editor-code-head) {
+  background: var(--tag-bg);
+  color: var(--text);
+}
+.post-body :deep(.md-editor-preview a) { color: var(--accent); }
 .rich-text :deep(h1) { font-size: 28px; margin: 32px 0 16px; }
 .rich-text :deep(h2) { font-size: 22px; margin: 28px 0 14px; }
 .rich-text :deep(h3) { font-size: 18px; margin: 24px 0 12px; }

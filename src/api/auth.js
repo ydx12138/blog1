@@ -57,6 +57,11 @@ export function updateUserAvatar(avatar) {
   return request('PUT', '/api/users/avatar', { avatar })
 }
 
-export function adminLogin(username, password) {
-  return request('POST', '/api/admin/login', { username, password }, true)
+export function adminLogin(username, password, captchaId, captchaCode) {
+  return request('POST', '/api/admin/login', {
+    username,
+    password,
+    captcha_id: captchaId,
+    captcha_code: captchaCode,
+  }, true)
 }

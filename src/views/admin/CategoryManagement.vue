@@ -20,6 +20,7 @@
       <table class="data-table">
         <colgroup>
           <col style="width:44px" />
+          <col style="width:96px" />
           <col style="width:70px" />
           <col style="width:220px" />
           <col style="width:auto" />
@@ -30,7 +31,7 @@
           <col style="width:180px" />
         </colgroup>
         <thead>
-          <tr><th></th><th>ID</th><th>名称</th><th>描述</th><th>排序</th><th>文章数</th><th>创建时间</th><th>更新时间</th><th>操作</th></tr>
+          <tr><th></th><th>封面</th><th>ID</th><th>名称</th><th>描述</th><th>排序</th><th>文章数</th><th>创建时间</th><th>更新时间</th><th>操作</th></tr>
         </thead>
         <TransitionGroup tag="tbody" name="category-list">
           <tr
@@ -52,6 +53,7 @@
                 @pointerdown.prevent="startPointerDrag(category.id, $event)"
               >&#8942;&#8942;</span>
             </td>
+            <td><img class="category-cover" :src="category.cover || '/default-category-cover.jpg'" :alt="`${category.name} 封面`" /></td>
             <td>{{ category.id }}</td>
             <td class="cell-ellipsis" :title="category.name">{{ category.name }}</td>
             <td class="cell-ellipsis" :title="category.description || '-'">{{ category.description || '-' }}</td>
@@ -74,6 +76,11 @@
           <h2>{{ editingCategory ? '修改分类' : '新增分类' }}</h2>
           <label>分类名称<input v-model.trim="form.name" maxlength="50" placeholder="请输入分类名称" /></label>
           <label>分类描述<textarea v-model.trim="form.description" maxlength="255" rows="4" placeholder="可选"></textarea></label>
+          <div class="category-cover-field">
+            <span>分类封面</span>
+            <ImageUpload :value="form.cover" :show-url="false" @uploaded="form.cover = $event" />
+            <small>未上传时将使用默认分类封面。</small>
+          </div>
           <div class="modal-actions">
             <button class="btn-secondary" @click="formVisible = false">取消</button>
             <button class="btn-primary" :disabled="saving" @click="submitForm">保存</button>
@@ -114,6 +121,7 @@ import {
   updateAdminCategorySort,
 } from '../../api/admin.js'
 import { showError } from '../../composables/useNotice.js'
+import ImageUpload from '../../components/ImageUpload.vue'
 
 const categories = ref([])
 const keyword = ref('')
@@ -133,7 +141,7 @@ const deleteTargets = ref([])
 const deleteMode = ref('force')
 const confirmText = ref('')
 const targetCategoryID = ref(0)
-const form = reactive({ name: '', description: '' })
+const form = reactive({ name: '', description: '', cover: '' })
 let searchTimer = null
 let dragGhost = null
 let dragOffsetX = 0
@@ -281,6 +289,7 @@ function openCreate() {
   editingCategory.value = null
   form.name = ''
   form.description = ''
+  form.cover = ''
   formVisible.value = true
 }
 
@@ -289,6 +298,7 @@ function openEdit(category) {
   editingCategory.value = category
   form.name = category.name
   form.description = category.description || ''
+  form.cover = category.cover || ''
   formVisible.value = true
 }
 
@@ -381,6 +391,7 @@ onMounted(loadCategories)
 .drop-bounce { animation: category-drop-bounce .36s cubic-bezier(.34, 1.56, .64, 1); }
 @keyframes category-drop-bounce { 0% { transform: scale(1); } 55% { transform: scale(1.02); } 100% { transform: scale(1); } }
 .cell-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.category-cover { display: block; width: 68px; height: 42px; object-fit: cover; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--border-light); }
 .actions { display: flex; gap: 6px; }
 .btn-primary, .btn-secondary, .btn-sm, .btn-danger-fill { border-radius: var(--radius-sm); font-family: var(--font-sans); cursor: pointer; transition: all var(--transition); }
 .btn-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; padding: 8px 14px; font-size: 13px; }
@@ -396,6 +407,9 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .modal-card h2 { margin: 0 0 20px; color: var(--heading); font-size: 18px; }
 .modal-card p { margin: 0 0 16px; color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
 .modal-card label { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; color: var(--text-secondary); font-size: 13px; }
+.category-cover-field { display: grid; gap: 7px; margin-top: 14px; color: var(--text-secondary); font-size: 13px; }
+.category-cover-field small { color: var(--text-muted); font-size: 12px; }
+.category-cover-field :deep(.upload-zone) { min-height: 110px; padding: 16px; }
 .modal-card input, .modal-card textarea, .modal-card select { box-sizing: border-box; width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font: inherit; outline: none; }
 .modal-card input:focus, .modal-card textarea:focus, .modal-card select:focus { border-color: var(--accent-border); }
 .delete-mode { display: grid; gap: 10px; margin: 14px 0 4px; }

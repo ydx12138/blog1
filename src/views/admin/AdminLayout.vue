@@ -14,6 +14,9 @@
       </nav>
       <div class="admin-sidebar-footer">
         <span class="admin-user">{{ adminUser?.nickname || adminUser?.username }}</span>
+        <button class="btn-theme" type="button" :title="isDark ? '切换亮色模式' : '切换暗色模式'" @click="toggleTheme">
+          {{ isDark ? '亮色模式' : '暗色模式' }}
+        </button>
         <button class="btn-logout" @click="handleLogout">退出</button>
       </div>
     </aside>
@@ -29,11 +32,13 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../../stores/auth.js'
 import { useConfirm } from '../../composables/useConfirm.js'
+import { useTheme } from '../../composables/useTheme.js'
 import ConfirmModal from '../../components/ConfirmModal.vue'
 
 const { adminUser, isAdmin, adminLogout } = useAuth()
 const router = useRouter()
 const { visible, message, handleOk, handleCancel } = useConfirm()
+const { isDark, toggleTheme } = useTheme('blog-admin-theme')
 
 onMounted(() => {
   if (!isAdmin.value) {
@@ -59,7 +64,8 @@ function handleLogout() {
 .nav-active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
 .admin-sidebar-footer { padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 8px; }
 .admin-user { font-size: 13px; color: var(--text-secondary); }
-.btn-logout { padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px; transition: all var(--transition); }
+.btn-theme, .btn-logout { padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px; transition: all var(--transition); }
+.btn-theme:hover { color: var(--accent); border-color: var(--accent-border); background: var(--accent-light); }
 .btn-logout:hover { color: #dc2626; border-color: #dc2626; }
 .admin-main { margin-left: 220px; flex: 1; padding: 32px 40px; min-width: 0; }
 @media (max-width: 768px) {

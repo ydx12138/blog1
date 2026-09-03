@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <div class="url-input" v-if="preview">
+    <div class="url-input" v-if="preview && showUrl">
       <label>图片URL</label>
       <input :value="url" readonly @focus="$event.target.select()" />
     </div>
@@ -29,7 +29,10 @@ import { uploadImage } from '../api/admin.js'
 import { showError } from '../composables/useNotice.js'
 
 const emit = defineEmits(['uploaded'])
-const props = defineProps({ value: { type: String, default: '' } })
+const props = defineProps({
+  value: { type: String, default: '' },
+  showUrl: { type: Boolean, default: true },
+})
 
 const fileInput = ref(null)
 const preview = ref(props.value || '')

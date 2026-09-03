@@ -64,6 +64,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { site, siteSettings } from '../data/site.js'
 import { useAuth } from '../stores/auth.js'
+import { useTheme } from '../composables/useTheme.js'
 import AuthModal from './AuthModal.vue'
 
 const { user, isLoggedIn, refreshUser, logout } = useAuth()
@@ -75,37 +76,13 @@ const navItems = computed(() => site.nav.filter((item) => {
 }))
 
 // ---- 主题 ----
-const STORAGE_KEY = 'blog-theme'
-function getSystemTheme() { return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' }
-function getStoredTheme() { try { return localStorage.getItem(STORAGE_KEY) } catch { return null } }
-function resolveTheme() { return getStoredTheme() || getSystemTheme() }
-
-const isDark = ref(resolveTheme() === 'dark')
+const { isDark, toggleTheme } = useTheme('blog-theme')
 const themeLabel = computed(() => isDark.value ? '切亮色' : '切暗色')
-
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme)
-  document.documentElement.style.colorScheme = theme
-}
-function toggleTheme() {
-  isDark.value = !isDark.value
-  const theme = isDark.value ? 'dark' : 'light'
-  applyTheme(theme)
-  try { localStorage.setItem(STORAGE_KEY, theme) } catch {}
-}
-
-let mediaQuery
 onMounted(() => {
-  applyTheme(isDark.value ? 'dark' : 'light')
-  mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  mediaQuery.addEventListener('change', (e) => {
-    if (!getStoredTheme()) { isDark.value = e.matches; applyTheme(e.matches ? 'dark' : 'light') }
-  })
   if (isLoggedIn.value && !user.value?.avatar) {
     refreshUser().catch(() => {})
   }
 })
-onUnmounted(() => { if (mediaQuery) mediaQuery.removeEventListener('change', () => {}) })
 
 // ---- 认证 ----
 const showAuthModal = ref(false)

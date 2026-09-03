@@ -44,6 +44,28 @@
       <section class="settings-section">
         <div class="section-heading">
           <div>
+            <h2>Token 有效期</h2>
+            <p>修改后对新登录生效，用户的 Access Token、Refresh Token 和登录会话同时使用该时长。</p>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>用户 Token（分钟）</span>
+            <input v-model.number="siteSettings.userTokenExpireMinutes" type="number" min="1" max="999999" step="1" inputmode="numeric" required />
+            <small class="field-hint">范围 1-999999 分钟</small>
+          </label>
+          <label class="field">
+            <span>管理员 Token（分钟）</span>
+            <input v-model.number="siteSettings.adminTokenExpireMinutes" type="number" min="1" max="999999" step="1" inputmode="numeric" required />
+            <small class="field-hint">范围 1-999999 分钟</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="section-heading">
+          <div>
             <h2>站点资料</h2>
             <p>这些内容会展示在前台导航和“我的”页面。</p>
           </div>
@@ -114,6 +136,8 @@ function editableSettings() {
     categoriesEnabled: siteSettings.categoriesEnabled,
     profileEnabled: siteSettings.profileEnabled,
     commentsEnabled: siteSettings.commentsEnabled,
+    userTokenExpireMinutes: siteSettings.userTokenExpireMinutes,
+    adminTokenExpireMinutes: siteSettings.adminTokenExpireMinutes,
     siteTitle: site.title,
     profileGithub: site.author.github,
     profileEmail: site.author.email,
@@ -184,6 +208,7 @@ onMounted(loadSettings)
 .field { display: grid; gap: 7px; }
 .field-wide { grid-column: span 2; }
 .field span { color: var(--text-secondary); font-size: 13px; font-weight: 500; }
+.field-hint { color: var(--text-muted); font-size: 12px; }
 .field input { box-sizing: border-box; width: 100%; height: 40px; padding: 0 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; background: var(--bg); color: var(--text); font: inherit; font-size: 14px; transition: border-color var(--transition), box-shadow var(--transition); }
 .field input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-light); }
 .field-label { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
