@@ -134,6 +134,21 @@
           <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
         </select>
       </div>
+
+      <!-- 8. 数据统计 -->
+      <div class="field">
+        <label class="field-label">数据统计</label>
+        <div class="stats-grid">
+          <label class="stat-field">
+            <span>浏览量</span>
+            <input v-model.number="form.view_count" type="number" min="0" step="1" inputmode="numeric" class="field-input" />
+          </label>
+          <label class="stat-field">
+            <span>点赞数</span>
+            <input v-model.number="form.like_count" type="number" min="0" step="1" inputmode="numeric" class="field-input" />
+          </label>
+        </div>
+      </div>
     </form>
 
     <!-- 底部操作 -->
@@ -181,6 +196,7 @@ const form = ref({
   title: '', summary: '', content: '',
   content_type: 1, cover: '', category_id: 0,
   tags: '', status: 1,
+  view_count: 0, like_count: 0,
 })
 const categories = ref([])
 const allTags = ref([])
@@ -308,6 +324,7 @@ async function loadArticle() {
       content_type: a.content_type || 1, cover: a.cover || '',
       category_id: a.category_id || a.CategoryID || 0,
       tags: a.tags || '', status: a.status || 1,
+      view_count: Number(a.view_count) || 0, like_count: Number(a.like_count) || 0,
     }
   } catch (e) { showError('加载文章失败：' + e.message) }
   loading.value = false
@@ -321,7 +338,12 @@ async function save(status) {
   if (isNew.value && !form.value.cover.trim()) { showError('请上传封面图片'); return }
   saving.value = true
   try {
-    const data = { ...form.value, status }
+    const data = {
+      ...form.value,
+      status,
+      view_count: Number(form.value.view_count) || 0,
+      like_count: Number(form.value.like_count) || 0,
+    }
     if (isNew.value) {
       await createArticle(data)
     } else {
@@ -446,6 +468,9 @@ onMounted(async () => {
 }
 .field-textarea { resize: vertical; min-height: 60px; }
 .field-select { cursor: pointer; max-width: 240px; }
+.stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 16px; }
+.stat-field { display: grid; gap: 6px; }
+.stat-field span { color: var(--text-secondary); font-size: 13px; font-weight: 500; }
 
 /* 标签选择器 */
 .tag-selector { display: flex; flex-direction: column; gap: 10px; }

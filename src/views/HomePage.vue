@@ -73,7 +73,7 @@ onUnmounted(() => loadMoreObserver?.disconnect())
 </script>
 
 <style scoped>
-.home-page { padding: 40px 0 0; }
+.home-page { padding: var(--page-top) 0 0; }
 .load-more-trigger { height: 1px; }
 .error-banner {
   padding: 12px 16px;

@@ -97,7 +97,7 @@ onMounted(loadProfile)
 .profile-page {
   width: min(100%, 560px);
   margin: 0 auto;
-  padding: 48px 0 64px;
+  padding: var(--page-top) 0 var(--space-16);
 }
 
 .back-link {

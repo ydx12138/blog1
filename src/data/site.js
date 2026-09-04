@@ -30,7 +30,9 @@ export const siteSettings = reactive({
   categoriesEnabled: true,
   profileEnabled: true,
   commentsEnabled: true,
-  userTokenExpireMinutes: 15,
+  likeEnabled: true,
+  userAccessTokenExpireMinutes: 15,
+  userRefreshTokenExpireMinutes: 10080,
   adminTokenExpireMinutes: 10080,
 })
 
@@ -41,12 +43,19 @@ function applySiteSettings(data = {}) {
   siteSettings.categoriesEnabled = data.categories_enabled !== false
   siteSettings.profileEnabled = data.profile_enabled !== false
   siteSettings.commentsEnabled = data.comments_enabled !== false
+  siteSettings.likeEnabled = data.like_enabled !== false
   if (typeof data.site_title === 'string' && data.site_title.trim()) site.title = data.site_title.trim()
   if (typeof data.profile_github === 'string') site.author.github = data.profile_github
   if (typeof data.profile_email === 'string') site.author.email = data.profile_email
   if (typeof data.profile_avatar === 'string') site.author.avatar = data.profile_avatar.trim()
   if (typeof data.profile_about === 'string') site.author.about = data.profile_about
-  if (Number.isInteger(data.user_token_expire_minutes)) siteSettings.userTokenExpireMinutes = data.user_token_expire_minutes
+  if (Number.isInteger(data.user_access_token_expire_minutes)) siteSettings.userAccessTokenExpireMinutes = data.user_access_token_expire_minutes
+  if (Number.isInteger(data.user_refresh_token_expire_minutes)) {
+    siteSettings.userRefreshTokenExpireMinutes = data.user_refresh_token_expire_minutes
+  } else if (Number.isInteger(data.user_token_expire_minutes)) {
+    // 兼容旧版后端仍返回统一的 user_token_expire_minutes
+    siteSettings.userRefreshTokenExpireMinutes = data.user_token_expire_minutes
+  }
   if (Number.isInteger(data.admin_token_expire_minutes)) siteSettings.adminTokenExpireMinutes = data.admin_token_expire_minutes
 }
 
@@ -70,12 +79,14 @@ export function buildSiteSettingsPayload(settings) {
     categories_enabled: settings.categoriesEnabled,
     profile_enabled: settings.profileEnabled,
     comments_enabled: settings.commentsEnabled,
+    like_enabled: settings.likeEnabled,
     site_title: settings.siteTitle,
     profile_github: settings.profileGithub,
     profile_email: settings.profileEmail,
     profile_avatar: settings.profileAvatar,
     profile_about: settings.profileAbout,
-    user_token_expire_minutes: settings.userTokenExpireMinutes,
+    user_access_token_expire_minutes: settings.userAccessTokenExpireMinutes,
+    user_refresh_token_expire_minutes: settings.userRefreshTokenExpireMinutes,
     admin_token_expire_minutes: settings.adminTokenExpireMinutes,
   }
 }

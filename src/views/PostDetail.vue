@@ -101,6 +101,7 @@ import { getArticleDetail, likeArticle } from '../api/articles.js'
 import { getComments, createComment } from '../api/comments.js'
 import { useAuth } from '../stores/auth.js'
 import { siteSettings } from '../data/site.js'
+import { showError } from '../composables/useNotice.js'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 
@@ -169,6 +170,10 @@ async function fetchArticle() {
 
 async function handleLike() {
   if (likeLoading.value) return
+  if (!siteSettings.likeEnabled) {
+    showError('功能升级中')
+    return
+  }
   likeLoading.value = true
   try {
     await likeArticle(articleId.value)
@@ -221,7 +226,7 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 </script>
 
 <style scoped>
-.post-detail-page { padding: 40px 0; max-width: 1200px; margin: 0 auto; }
+.post-detail-page { padding: var(--page-top) 0; max-width: 1200px; margin: 0 auto; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 6px;

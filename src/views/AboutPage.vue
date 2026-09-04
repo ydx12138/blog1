@@ -46,7 +46,7 @@ const aboutParagraphs = computed(() => String(site.author.about || '')
 
 <style scoped>
 .about-page {
-  padding: 0 0 40px;
+  padding: var(--page-top) 0 40px;
 }
 
 .about-content {

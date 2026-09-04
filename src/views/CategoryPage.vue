@@ -55,7 +55,7 @@ watch(categoryId, fetchData)
 </script>
 
 <style scoped>
-.category-page { padding: 32px 0; }
+.category-page { padding: var(--page-top) 0; }
 .back-link {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 14px; color: var(--text-secondary);

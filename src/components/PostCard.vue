@@ -112,13 +112,19 @@ function onCoverError(e) {
 .post-card {
   display: flex;
   gap: 20px;
-  padding: 24px 0;
+  padding: 24px 20px;
+  margin: 0 -20px;
   border-bottom: 1px solid var(--border-light);
-  transition: all var(--transition);
+  border-radius: var(--radius);
+  transition: background-color var(--transition), transform var(--transition);
   cursor: pointer;
 }
-.post-card:first-child { padding-top: 0; }
-.post-card:hover { background: linear-gradient(to right, transparent, var(--accent-light)); }
+.post-card:first-child { padding-top: 20px; }
+.post-card:last-child { border-bottom: none; }
+.post-card:hover {
+  background-color: var(--accent-light);
+  transform: translateX(2px);
+}
 
 .post-cover {
   flex-shrink: 0;

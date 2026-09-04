@@ -2,7 +2,7 @@
   <section class="home-ranking">
     <div class="ranking-heading">
       <span class="ranking-title">热门文章</span>
-      <span class="ranking-caption">点赞排行</span>
+      <span class="ranking-caption">浏览量排行</span>
     </div>
 
     <ol v-if="rankingItems.length" class="ranking-list">
@@ -30,7 +30,7 @@ import { getArticleRanking } from '../api/articles.js'
 const rankingItems = ref([])
 let refreshTimer
 
-// loadRanking 拉取最新点赞排行榜；无参数；返回接口请求结果。
+// loadRanking 拉取最新浏览量排行榜；无参数；返回接口请求结果。
 async function loadRanking() {
   try {
     const articles = await getArticleRanking(10)

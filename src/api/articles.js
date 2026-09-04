@@ -5,7 +5,7 @@ export function getArticles(page = 1, pageSize = 10) {
   return request('GET', `/api/articles?page=${page}&page_size=${pageSize}`)
 }
 
-// getArticleRanking 获取按点赞数排序的热门文章；参数 limit 为最多返回篇数；返回文章摘要列表。
+// getArticleRanking 获取按浏览量排序的热门文章；参数 limit 为最多返回篇数；返回文章摘要列表。
 export function getArticleRanking(limit = 10) {
   return request('GET', `/api/articles/ranking?limit=${limit}`)
 }

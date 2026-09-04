@@ -38,6 +38,11 @@
             <input v-model="siteSettings.commentsEnabled" type="checkbox" />
             <i aria-hidden="true"></i>
           </label>
+          <label class="toggle-row">
+            <span><strong>点赞功能</strong><small>关闭时，前台点赞提示“功能升级中”。</small></span>
+            <input v-model="siteSettings.likeEnabled" type="checkbox" />
+            <i aria-hidden="true"></i>
+          </label>
         </div>
       </section>
 
@@ -45,15 +50,20 @@
         <div class="section-heading">
           <div>
             <h2>Token 有效期</h2>
-            <p>修改后对新登录生效，用户的 Access Token、Refresh Token 和登录会话同时使用该时长。</p>
+            <p>修改后对新登录生效；用户 Access Token 为短时凭证，Refresh Token 为长时凭证，登录会话与 Refresh Token 同生命周期。</p>
           </div>
         </div>
 
         <div class="field-grid">
           <label class="field">
-            <span>用户 Token（分钟）</span>
-            <input v-model.number="siteSettings.userTokenExpireMinutes" type="number" min="1" max="999999" step="1" inputmode="numeric" required />
-            <small class="field-hint">范围 1-999999 分钟</small>
+            <span>用户 Access Token（分钟）</span>
+            <input v-model.number="siteSettings.userAccessTokenExpireMinutes" type="number" min="1" max="999999" step="1" inputmode="numeric" required />
+            <small class="field-hint">短时凭证，须小于 Refresh Token</small>
+          </label>
+          <label class="field">
+            <span>用户 Refresh Token（分钟）</span>
+            <input v-model.number="siteSettings.userRefreshTokenExpireMinutes" type="number" min="1" max="999999" step="1" inputmode="numeric" required />
+            <small class="field-hint">长时凭证，须大于 Access Token</small>
           </label>
           <label class="field">
             <span>管理员 Token（分钟）</span>
@@ -74,7 +84,8 @@
         <div class="field-grid">
           <label class="field field-wide">
             <span>网站名称</span>
-            <input v-model.trim="site.title" maxlength="40" placeholder="例如：懂你" />
+            <input v-model.trim="site.title" maxlength="6" placeholder="例如：懂你" />
+            <small class="field-hint">1-6 个字符</small>
           </label>
           <label class="field field-wide">
             <span>头像地址</span>
@@ -136,7 +147,9 @@ function editableSettings() {
     categoriesEnabled: siteSettings.categoriesEnabled,
     profileEnabled: siteSettings.profileEnabled,
     commentsEnabled: siteSettings.commentsEnabled,
-    userTokenExpireMinutes: siteSettings.userTokenExpireMinutes,
+    likeEnabled: siteSettings.likeEnabled,
+    userAccessTokenExpireMinutes: siteSettings.userAccessTokenExpireMinutes,
+    userRefreshTokenExpireMinutes: siteSettings.userRefreshTokenExpireMinutes,
     adminTokenExpireMinutes: siteSettings.adminTokenExpireMinutes,
     siteTitle: site.title,
     profileGithub: site.author.github,
@@ -159,6 +172,10 @@ async function loadSettings() {
 
 async function saveSettings() {
   feedback.value = ''
+  if (siteSettings.userAccessTokenExpireMinutes >= siteSettings.userRefreshTokenExpireMinutes) {
+    feedback.value = 'Access Token 有效期必须小于 Refresh Token 有效期'
+    return false
+  }
   saving.value = true
   try {
     await updateAdminSiteSettings(editableSettings())

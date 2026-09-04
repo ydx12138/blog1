@@ -57,7 +57,7 @@ onBeforeUnmount(() => search.reset())
 </script>
 
 <style scoped>
-.search-results-page { padding-top: 24px; }
+.search-results-page { padding-top: var(--page-top); }
 .search-results-header { padding: 28px 0 30px; text-align: center; }
 .results-title { display: inline-flex; align-items: center; gap: 12px; color: var(--heading); }
 .results-title svg { color: var(--heading); }

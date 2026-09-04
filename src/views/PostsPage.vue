@@ -30,6 +30,6 @@ onMounted(() => fetchArticles())
 </script>
 
 <style scoped>
-.posts-page { padding: 40px 0; }
+.posts-page { padding: var(--page-top) 0; }
 .error-banner { padding: 12px 16px; background: var(--danger-light); color: var(--danger); border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 14px; }
 </style>
