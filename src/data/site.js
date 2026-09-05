@@ -16,6 +16,9 @@ export const site = reactive({
   nav: [
     { label: '首页', path: '/' },
     { label: '分类', path: '/categories' },
+    { label: '标签', path: '/tags' },
+    { label: '归档', path: '/archive' },
+    { label: '友链', path: '/links' },
     { label: '我的', path: '/about' },
   ],
   socialLinks: [

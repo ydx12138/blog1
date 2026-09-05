@@ -8,6 +8,9 @@ const routes = [
   { path: '/posts/:id', name: 'post-detail', component: () => import('../views/PostDetail.vue') },
   { path: '/search', name: 'search', component: () => import('../views/SearchResultsPage.vue') },
   { path: '/categories', name: 'categories', component: () => import('../views/CategoriesPage.vue') },
+  { path: '/tags', name: 'tags', component: () => import('../views/TagsPage.vue') },
+  { path: '/archive', name: 'archive', component: () => import('../views/ArchivePage.vue') },
+  { path: '/links', name: 'links', component: () => import('../views/LinksPage.vue') },
   { path: '/categories/:id', name: 'category', redirect: (to) => ({ name: 'categories', query: { category_id: to.params.id } }) },
   { path: '/about', name: 'about', component: () => import('../views/AboutPage.vue') },
   { path: '/profile', name: 'profile', component: () => import('../views/ProfilePage.vue'), meta: { requiresUser: true } },
@@ -33,6 +36,7 @@ const routes = [
       { path: 'comments', name: 'admin-comments', component: () => import('../views/admin/CommentReview.vue') },
       { path: 'users', name: 'admin-users', component: () => import('../views/admin/UserList.vue') },
       { path: 'site', name: 'admin-site', component: () => import('../views/admin/SiteManagement.vue') },
+      { path: 'links', name: 'admin-links', component: () => import('../views/admin/LinkManagement.vue') },
     ],
   },
 

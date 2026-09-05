@@ -11,6 +11,7 @@
         <router-link to="/admin/users" active-class="nav-active" class="nav-item">👥 用户管理</router-link>
         <router-link to="/admin/site" active-class="nav-active" class="nav-item">⚙️ 网站管理</router-link>
         <router-link to="/admin/categories" active-class="nav-active" class="nav-item">📁 分类管理</router-link>
+        <router-link to="/admin/links" active-class="nav-active" class="nav-item">🔗 友链管理</router-link>
       </nav>
       <div class="admin-sidebar-footer">
         <span class="admin-user">{{ adminUser?.nickname || adminUser?.username }}</span>

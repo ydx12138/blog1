@@ -1,11 +1,11 @@
 <template>
-  <div class="frontend-layout" :class="{ 'frontend-layout--home': isHome }">
+  <div class="frontend-layout" :class="{ 'frontend-layout--home': isHome, 'frontend-layout--post': isPostDetail }">
     <section class="frontend-layout__main">
       <slot />
     </section>
 
-    <aside class="frontend-layout__aside" aria-label="页面扩展区域">
-      <HomeRanking v-if="isHome" />
+    <aside v-if="isHome" class="frontend-layout__aside" aria-label="页面扩展区域">
+      <HomeRanking />
     </aside>
   </div>
 </template>
@@ -17,6 +17,7 @@ import HomeRanking from '../components/HomeRanking.vue'
 
 const route = useRoute()
 const isHome = computed(() => route.name === 'home')
+const isPostDetail = computed(() => route.name === 'post-detail')
 </script>
 
 <style scoped>
@@ -24,10 +25,20 @@ const isHome = computed(() => route.name === 'home')
   width: min(100%, 1120px);
   min-height: calc(100vh - 80px);
   display: grid;
-  grid-template-columns: minmax(0, 720px) 272px;
+  grid-template-columns: minmax(0, 720px);
   align-items: start;
   column-gap: 56px;
   margin: 0 auto;
+}
+
+/* 首页：正文 + 右侧排行榜 */
+.frontend-layout--home {
+  grid-template-columns: minmax(0, 720px) 272px;
+}
+
+/* 详情页：左侧目录 + 正文（正文保持 720px 阅读宽度） */
+.frontend-layout--post {
+  grid-template-columns: minmax(0, 960px);
 }
 
 .frontend-layout__main { min-width: 0; }
@@ -43,7 +54,9 @@ const isHome = computed(() => route.name === 'home')
 }
 
 @media (max-width: 1040px) {
-  .frontend-layout {
+  .frontend-layout,
+  .frontend-layout--home,
+  .frontend-layout--post {
     width: min(100%, 760px);
     grid-template-columns: minmax(0, 1fr);
   }

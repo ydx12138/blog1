@@ -31,6 +31,10 @@ export function searchArticleSuggestions(keyword) {
 export function likeArticle(articleId) {
   return request('POST', '/api/articles/like', { article_id: articleId })
 }
+// 获取相关文章（同分类/同标签），返回最多 limit 条（默认 5）。
+export function getRelatedArticles(id, limit = 5) {
+  return request('GET', `/api/articles/related?id=${id}&limit=${limit}`)
+}
 // 取消点赞文章
 export function fetchTags() {
   return request('GET', '/api/tags')

@@ -41,7 +41,13 @@
 
       <!-- 标签 -->
       <div class="post-tags" v-if="tags.length">
-        <span v-for="t in tags" :key="t" class="tag">{{ t }}</span>
+        <router-link
+          v-for="t in tags"
+          :key="t"
+          class="tag"
+          :to="{ path: '/tags', query: { tag: t } }"
+          @click.stop
+        >{{ t }}</router-link>
       </div>
     </div>
   </article>
@@ -215,12 +221,20 @@ function onCoverError(e) {
   margin-top: 10px;
 }
 .tag {
+  display: inline-flex;
+  align-items: center;
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 100px;
   background: var(--tag-bg);
   color: var(--tag-text);
   font-family: var(--font-mono);
+  text-decoration: none;
+  transition: all var(--transition);
+}
+.tag:hover {
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 @media (max-width: 768px) {

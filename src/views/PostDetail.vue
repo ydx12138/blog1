@@ -11,98 +11,117 @@
     <div class="status-msg" v-if="loading">加载中...</div>
     <div class="status-msg" v-else-if="!loading && !article && !fetchError">文章不存在</div>
 
-    <article class="post-article" v-if="article">
-      <header class="post-header">
-        <span class="post-category" v-if="article.category_name">{{ article.category_name }}</span>
-        <h1 class="post-title">{{ article.title }}</h1>
-        <div class="post-meta">
-          <time>{{ formattedDate }}</time>
-          <span class="meta-sep">·</span>
-          <span>{{ article.view_count || 0 }} 次阅读</span>
-          <span class="meta-sep">·</span>
-          <span>{{ likeCount }} 次点赞</span>
-          <span class="meta-sep">·</span>
-          <span>{{ article.comment_count || 0 }} 条评论</span>
-        </div>
-        <div class="post-tags" v-if="tags.length">
-          <span v-for="tag in tags" :key="tag" class="tag">{{ tag }}</span>
-        </div>
-      </header>
-
-      <div class="post-body">
-        <div v-if="article.content_type === 1" class="rich-text" v-html="article.content"></div>
-        <MdPreview v-else-if="article.content_type === 2" :modelValue="article.content" :theme="previewTheme" />
-        <div v-else class="rich-text" v-html="article.content"></div>
-      </div>
-    </article>
-
-    <!-- 点赞 -->
-    <div class="post-like-bar" v-if="article">
-      <button
-        class="btn-like"
-        :class="{ liked: hasLiked }"
-        @click="handleLike"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" :fill="hasLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
-        </svg>
-        {{ hasLiked ? '已点赞' : '点赞' }}
-      </button>
-      <span class="like-count-text">{{ likeCount }} 次点赞</span>
-    </div>
-
-    <!-- 评论区 -->
-    <section class="comments-section" v-if="article">
-      <h2 class="comments-title">评论 ({{ totalComments }})</h2>
-
-      <div v-if="!siteSettings.commentsEnabled" class="comments-disabled">评论功能暂未开放</div>
-
-      <template v-else>
-      <div class="comment-form" v-if="isLoggedIn">
-        <textarea
-          v-model="commentText"
-          placeholder="写下你的评论..."
-          rows="3"
-          class="comment-input"
-        ></textarea>
-        <div class="comment-form-footer">
-          <span class="comment-hint" v-if="commentError">{{ commentError }}</span>
-          <button class="btn-submit" @click="submitComment" :disabled="submitting || !commentText.trim()">
-            {{ submitting ? '提交中...' : '发表评论' }}
-          </button>
-        </div>
-      </div>
-      <div class="comment-login-hint" v-else>
-        <button class="link-btn" @click="showAuth">登录</button> 后发表评论
-      </div>
-
-      <div class="comment-list" v-if="comments.length">
-        <div v-for="c in comments" :key="c.id" class="comment-item">
-          <div class="comment-avatar">{{ c.nickname?.charAt(0)?.toUpperCase() || '?' }}</div>
-          <div class="comment-body">
-            <div class="comment-header">
-              <span class="comment-author">{{ c.nickname }}</span>
-              <span class="comment-time">{{ formatTime(c.created_at) }}</span>
+    <div class="post-grid" v-if="article" :class="{ 'post-grid--with-toc': article.content_type === 2 }">
+      <div class="post-main">
+        <article class="post-article">
+          <header class="post-header">
+            <span class="post-category" v-if="article.category_name">{{ article.category_name }}</span>
+            <h1 class="post-title">{{ article.title }}</h1>
+            <div class="post-meta">
+              <time>{{ formattedDate }}</time>
+              <span class="meta-sep">·</span>
+              <span>{{ article.view_count || 0 }} 次阅读</span>
+              <span class="meta-sep">·</span>
+              <span>{{ likeCount }} 次点赞</span>
+              <span class="meta-sep">·</span>
+              <span>{{ article.comment_count || 0 }} 条评论</span>
             </div>
-            <p class="comment-content">{{ c.content }}</p>
+            <div class="post-tags" v-if="tags.length">
+              <router-link
+                v-for="tag in tags"
+                :key="tag"
+                class="tag"
+                :to="{ path: '/tags', query: { tag } }"
+              >{{ tag }}</router-link>
+            </div>
+          </header>
+
+          <div class="post-body">
+            <div v-if="article.content_type === 1" class="rich-text" v-html="article.content"></div>
+            <MdPreview v-else-if="article.content_type === 2" :id="previewId" :modelValue="article.content" :theme="previewTheme" />
+            <div v-else class="rich-text" v-html="article.content"></div>
           </div>
+        </article>
+
+        <!-- 相关文章 -->
+        <RelatedArticles :articles="related" />
+
+        <!-- 点赞 -->
+        <div class="post-like-bar">
+          <button
+            class="btn-like"
+            :class="{ liked: hasLiked }"
+            @click="handleLike"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" :fill="hasLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+            </svg>
+            {{ hasLiked ? '已点赞' : '点赞' }}
+          </button>
+          <span class="like-count-text">{{ likeCount }} 次点赞</span>
         </div>
+
+        <!-- 评论区 -->
+        <section class="comments-section">
+          <h2 class="comments-title">评论 ({{ totalComments }})</h2>
+
+          <div v-if="!siteSettings.commentsEnabled" class="comments-disabled">评论功能暂未开放</div>
+
+          <template v-else>
+          <div class="comment-form" v-if="isLoggedIn">
+            <textarea
+              v-model="commentText"
+              placeholder="写下你的评论..."
+              rows="3"
+              class="comment-input"
+            ></textarea>
+            <div class="comment-form-footer">
+              <span class="comment-hint" v-if="commentError">{{ commentError }}</span>
+              <button class="btn-submit" @click="submitComment" :disabled="submitting || !commentText.trim()">
+                {{ submitting ? '提交中...' : '发表评论' }}
+              </button>
+            </div>
+          </div>
+          <div class="comment-login-hint" v-else>
+            <button class="link-btn" @click="showAuth">登录</button> 后发表评论
+          </div>
+
+          <div class="comment-list" v-if="comments.length">
+            <div v-for="c in comments" :key="c.id" class="comment-item">
+              <div class="comment-avatar">{{ c.nickname?.charAt(0)?.toUpperCase() || '?' }}</div>
+              <div class="comment-body">
+                <div class="comment-header">
+                  <span class="comment-author">{{ c.nickname }}</span>
+                  <span class="comment-time">{{ formatTime(c.created_at) }}</span>
+                </div>
+                <p class="comment-content">{{ c.content }}</p>
+              </div>
+            </div>
+          </div>
+          <p class="empty-comments" v-else-if="!loadingComments">暂无评论，来做第一个评论的人吧</p>
+          </template>
+        </section>
       </div>
-      <p class="empty-comments" v-else-if="!loadingComments">暂无评论，来做第一个评论的人吧</p>
-      </template>
-    </section>
+
+      <!-- 目录（独立侧栏，位于正文右侧，不挤占正文宽度） -->
+      <aside class="post-toc" v-if="article.content_type === 2">
+        <div class="post-toc__title">目录</div>
+        <MdCatalog :editorId="previewId" :scrollElement="scrollElement" />
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getArticleDetail, likeArticle } from '../api/articles.js'
+import { getArticleDetail, likeArticle, getRelatedArticles } from '../api/articles.js'
 import { getComments, createComment } from '../api/comments.js'
 import { useAuth } from '../stores/auth.js'
 import { siteSettings } from '../data/site.js'
 import { showError } from '../composables/useNotice.js'
-import { MdPreview } from 'md-editor-v3'
+import { MdPreview, MdCatalog } from 'md-editor-v3'
+import RelatedArticles from '../components/RelatedArticles.vue'
 import 'md-editor-v3/lib/style.css'
 
 const route = useRoute()
@@ -111,6 +130,10 @@ const articleId = computed(() => Number(route.params.id))
 const { isLoggedIn } = useAuth()
 const previewTheme = ref('light')
 let themeObserver
+
+// Markdown 预览与目录组件通过该 id 关联。
+const previewId = 'post-md-preview'
+const scrollElement = document.documentElement
 
 function syncPreviewTheme() {
   previewTheme.value = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
@@ -137,6 +160,7 @@ const fetchError = ref('')
 const hasLiked = ref(false)
 const likeLoading = ref(false)
 const likeCount = ref(0)
+const related = ref([])
 
 const formattedDate = computed(() => {
   if (!article.value?.created_at) return ''
@@ -163,9 +187,19 @@ async function fetchArticle() {
   try {
     article.value = await getArticleDetail(articleId.value)
     likeCount.value = article.value.like_count || 0
+    fetchRelated()
   }
   catch (e) { fetchError.value = '加载失败：' + (e.message || '请确认后端服务已启动') }
   loading.value = false
+}
+
+async function fetchRelated() {
+  related.value = []
+  if (!articleId.value) return
+  try {
+    const data = await getRelatedArticles(articleId.value, 5)
+    related.value = data.list || []
+  } catch (e) { console.error('获取相关文章失败:', e) }
 }
 
 async function handleLike() {
@@ -226,7 +260,20 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 </script>
 
 <style scoped>
-.post-detail-page { padding: var(--page-top) 0; max-width: 1200px; margin: 0 auto; }
+.post-detail-page { padding: var(--page-top) 0; }
+
+/* 主体栅格：文章主体 720px 紧贴左对齐（与"返回"链接同起点）；如有目录，右侧再放 200px 独立 sticky 侧栏。
+   两个状态下文章主体都在第一列 720px 处开始，TOC 不再影响正文位置。 */
+.post-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 720px);
+  gap: 40px;
+  align-items: start;
+}
+.post-grid--with-toc {
+  grid-template-columns: minmax(0, 720px) 200px;
+}
+.post-main { min-width: 0; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 6px;
@@ -299,14 +346,59 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
   font-family: var(--font-mono);
 }
 .tag {
+  display: inline-flex;
+  align-items: center;
   font-size: 11px; padding: 2px 10px; border-radius: 100px;
   background: var(--tag-bg); color: var(--tag-text); font-family: var(--font-mono);
+  text-decoration: none;
+  transition: all var(--transition);
 }
+.tag:hover { background: var(--accent-light); color: var(--accent); }
 
 /* 文章正文 */
 .post-body {
   font-size: 17px; line-height: 1.85; color: var(--text);
   margin-bottom: 48px;
+}
+
+/* 目录侧栏（独立 sticky 列，位于正文右侧，不挤占正文宽度） */
+.post-toc {
+  position: sticky;
+  top: 32px;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-light);
+}
+.post-toc__title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 12px;
+}
+.post-toc :deep(.md-editor-catalog) {
+  background: transparent;
+  border: none;
+  max-height: none;
+}
+.post-toc :deep(.md-editor-catalog-link) {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 3px 0;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.post-toc :deep(.md-editor-catalog-link:hover) {
+  color: var(--heading);
+}
+.post-toc :deep(.md-editor-catalog-active) {
+  color: var(--accent);
+  font-weight: 600;
+}
+.post-toc :deep(.md-editor-catalog-indicator) {
+  background: var(--accent);
 }
 .post-body :deep(.md-editor),
 .post-body :deep(.md-editor-previewOnly),
@@ -401,7 +493,19 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 .comment-content { font-size: 15px; color: var(--text); line-height: 1.6; }
 .empty-comments { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 14px; }
 
+/* 窄屏：隐藏目录，主栏占满 */
+@media (max-width: 1040px) {
+  .post-grid--with-toc {
+    grid-template-columns: minmax(0, 720px);
+  }
+  .post-toc { display: none; }
+}
+
 @media (max-width: 768px) {
+  .post-grid,
+  .post-grid--with-toc {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .post-title { font-size: 26px; }
   .post-body { font-size: 16px; }
 }
