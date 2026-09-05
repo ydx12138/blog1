@@ -1,4 +1,4 @@
-name: Frontend Build
+name: Frontend Deploy
 
 on:
   push:
@@ -6,32 +6,113 @@ on:
       - shouye
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 拉取代码
       - name: 拉取代码
         uses: actions/checkout@v5
 
+      # 2. 安装 Node.js
       - name: 安装 Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
 
+      # 3. 安装依赖
       - name: 安装依赖
         run: npm ci
 
+      # 4. 构建前端
       - name: 构建前端
         run: npm run build
 
-      - name: 测试 SSH 连接
+      # 5. 打包 dist
+      - name: 打包 dist
+        run: tar -czf dist.tar.gz -C dist .
+
+      # 6. 上传到服务器
+      - name: 上传前端文件
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "dist.tar.gz"
+          target: "/home/blog/frontend"
+
+      # 7. 部署到服务器
+      - name: 部署前端
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            echo "SSH connection successful!"
-            whoami
-            pwd
+            set -e
+
+            FRONTEND_DIR="/home/blog/frontend"
+            DIST_DIR="$FRONTEND_DIR/dist"
+            NEW_DIST="$FRONTEND_DIR/dist_new"
+            BACKUP_DIR="$FRONTEND_DIR/dist_backup"
+
+            echo "================================"
+            echo "开始部署前端"
+            echo "================================"
+
+            # 清理旧的临时目录
+            rm -rf "$NEW_DIST"
+
+            # 创建新的临时目录
+            mkdir -p "$NEW_DIST"
+
+            # 解压新的 dist
+            tar -xzf "$FRONTEND_DIR/dist.tar.gz" -C "$NEW_DIST"
+
+            echo "新版本文件："
+            ls -la "$NEW_DIST"
+
+            # 删除旧备份
+            rm -rf "$BACKUP_DIR"
+
+            # 备份当前版本
+            if [ -d "$DIST_DIR" ]; then
+              mv "$DIST_DIR" "$BACKUP_DIR"
+            fi
+
+            # 新版本上线
+            mv "$NEW_DIST" "$DIST_DIR"
+
+            # 删除上传的压缩包
+            rm -f "$FRONTEND_DIR/dist.tar.gz"
+
+            # 检查 index.html
+            if [ ! -f "$DIST_DIR/index.html" ]; then
+              echo "❌ 部署失败：index.html 不存在"
+              echo "正在回滚..."
+
+              rm -rf "$DIST_DIR"
+
+              if [ -d "$BACKUP_DIR" ]; then
+                mv "$BACKUP_DIR" "$DIST_DIR"
+              fi
+
+              exit 1
+            fi
+
+            echo "前端文件部署成功"
+
+            # 检查 Nginx 配置
+            nginx -t
+
+            # 重载 Nginx
+            systemctl reload nginx
+
+            echo "================================"
+            echo "前端部署完成"
+            echo "================================"
+
+            echo "当前版本："
+            ls -la "$DIST_DIR" | head
