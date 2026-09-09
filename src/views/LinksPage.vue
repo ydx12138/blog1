@@ -32,30 +32,57 @@
 
     <section class="apply">
       <h2 class="apply__title">申请友链</h2>
-      <p class="apply__caption">欢迎互换友链，请在评论区或邮件告知你的站点信息。</p>
-      <ul class="apply__meta">
-        <li><strong>站点名称：</strong>{{ siteName }}</li>
-        <li><strong>站点地址：</strong>{{ siteUrl }}</li>
-        <li><strong>站点描述：</strong>{{ siteDesc }}</li>
-        <li v-if="siteLogo"><strong>站点图标：</strong>{{ siteLogo }}</li>
-      </ul>
+      <p class="apply__caption">欢迎互换友链，提交后默认通过并展示在列表中。</p>
+
+      <div v-if="!isLoggedIn" class="apply-login">
+        <p class="apply-login__hint">登录后即可提交你的站点信息。</p>
+        <button class="apply-btn" type="button" @click="requestLogin">登录后申请</button>
+      </div>
+
+      <form v-else class="apply-form" @submit.prevent="submitApply">
+        <div class="apply-row">
+          <label for="apply-name">站点名称 <em>*</em></label>
+          <input id="apply-name" v-model.trim="form.name" maxlength="50" placeholder="你的博客名称" />
+        </div>
+        <div class="apply-row">
+          <label for="apply-url">站点链接 <em>*</em></label>
+          <input id="apply-url" v-model.trim="form.url" maxlength="255" placeholder="https://example.com" />
+        </div>
+        <div class="apply-row">
+          <label for="apply-logo">头像 URL（选填）</label>
+          <input id="apply-logo" v-model.trim="form.logo" maxlength="255" placeholder="https://..." />
+        </div>
+        <div class="apply-row">
+          <label for="apply-desc">站点描述（选填）</label>
+          <textarea id="apply-desc" v-model.trim="form.description" maxlength="255" rows="3" placeholder="一句话介绍你的博客"></textarea>
+        </div>
+
+        <p v-if="formError" class="apply-error">{{ formError }}</p>
+        <p v-if="formSuccess" class="apply-success">{{ formSuccess }}</p>
+
+        <button class="apply-btn" type="submit" :disabled="submitting">
+          {{ submitting ? '提交中...' : '提交申请' }}
+        </button>
+      </form>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { fetchLinks } from '../api/links.js'
-import { siteSettings } from '../data/site.js'
+import { ref, reactive, onMounted } from 'vue'
+import { fetchLinks, applyFriendLink } from '../api/links.js'
+import { useAuth } from '../stores/auth.js'
+
+const { isLoggedIn } = useAuth()
 
 const links = ref([])
 const loading = ref(true)
 const error = ref('')
 
-const siteName = computed(() => siteSettings.siteTitle || '我的博客')
-const siteUrl = computed(() => (typeof window !== 'undefined' ? window.location.origin : ''))
-const siteDesc = computed(() => siteSettings.siteDescription || '一个记录学习与生活的小站。')
-const siteLogo = computed(() => siteSettings.siteLogo || '')
+const form = reactive({ name: '', url: '', logo: '', description: '' })
+const submitting = ref(false)
+const formError = ref('')
+const formSuccess = ref('')
 
 function initial(name) {
   if (!name) return '?'
@@ -82,10 +109,39 @@ function openLink(raw) {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+function requestLogin() {
+  window.dispatchEvent(new Event('show-auth-modal'))
+}
+
+async function loadLinks() {
+  const res = await fetchLinks()
+  links.value = Array.isArray(res) ? res : (res?.data || [])
+}
+
+async function submitApply() {
+  formError.value = ''
+  formSuccess.value = ''
+  if (!form.name) { formError.value = '请填写站点名称'; return }
+  if (!form.url) { formError.value = '请填写站点链接'; return }
+  submitting.value = true
+  try {
+    await applyFriendLink({ name: form.name, url: form.url, logo: form.logo, description: form.description })
+    formSuccess.value = '申请成功，已展示在友链列表中'
+    form.name = ''
+    form.url = ''
+    form.logo = ''
+    form.description = ''
+    await loadLinks()
+  } catch (e) {
+    formError.value = e.message || '申请失败，请稍后重试'
+  } finally {
+    submitting.value = false
+  }
+}
+
 onMounted(async () => {
   try {
-    const res = await fetchLinks()
-    links.value = Array.isArray(res) ? res : (res?.data || [])
+    await loadLinks()
   } catch (e) {
     error.value = e.message || '请确认后端服务已启动'
   } finally {
@@ -218,21 +274,86 @@ onMounted(async () => {
 .apply__caption {
   color: var(--text-secondary);
   font-size: 14px;
-  margin: 0 0 16px;
+  margin: 0 0 20px;
 }
-.apply__meta {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+
+.apply-login {
+  text-align: center;
+  padding: 8px 0;
 }
-.apply__meta li {
-  padding: 6px 0;
-  font-size: 14px;
+.apply-login__hint {
   color: var(--text-secondary);
-  word-break: break-all;
+  font-size: 14px;
+  margin: 0 0 14px;
 }
-.apply__meta strong {
+
+.apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 560px;
+}
+.apply-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.apply-row label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.apply-row em {
+  color: var(--color-danger);
+  font-style: normal;
+}
+.apply-row input,
+.apply-row textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: transparent;
   color: var(--text-primary);
-  margin-right: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.apply-row textarea {
+  resize: vertical;
+}
+.apply-row input:focus,
+.apply-row textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+.apply-btn {
+  align-self: flex-start;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--brand-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.apply-btn:hover {
+  opacity: 0.88;
+}
+.apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.apply-error {
+  color: var(--color-danger);
+  font-size: 13px;
+  margin: 0;
+}
+.apply-success {
+  color: var(--color-success, #16a34a);
+  font-size: 13px;
+  margin: 0;
 }
 </style>

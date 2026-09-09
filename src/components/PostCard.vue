@@ -118,15 +118,13 @@ function onCoverError(e) {
 .post-card {
   display: flex;
   gap: 20px;
-  padding: 24px 20px;
-  margin: 0 -20px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 24px 8px;
+  margin: 0 -8px;
   border-radius: var(--radius);
   transition: background-color var(--transition), transform var(--transition);
   cursor: pointer;
 }
 .post-card:first-child { padding-top: 20px; }
-.post-card:last-child { border-bottom: none; }
 .post-card:hover {
   background-color: var(--accent-light);
   transform: translateX(2px);

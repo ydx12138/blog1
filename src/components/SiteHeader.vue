@@ -71,6 +71,9 @@ const { user, isLoggedIn, refreshUser, logout } = useAuth()
 const router = useRouter()
 const navItems = computed(() => site.nav.filter((item) => {
   if (item.path === '/categories') return siteSettings.categoriesEnabled
+  if (item.path === '/tags') return siteSettings.tagsEnabled
+  if (item.path === '/archive') return siteSettings.archiveEnabled
+  if (item.path === '/links') return siteSettings.linksEnabled
   if (item.path === '/about') return siteSettings.profileEnabled
   return true
 }))
@@ -130,7 +133,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  border-right: 1px solid var(--border-light);
   padding: 36px 20px 20px;
   z-index: 100;
   transition: background var(--transition);

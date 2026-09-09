@@ -29,6 +29,21 @@
             <i aria-hidden="true"></i>
           </label>
           <label class="toggle-row">
+            <span><strong>标签页面</strong><small>关闭时，前台导航不展示标签入口。</small></span>
+            <input v-model="siteSettings.tagsEnabled" type="checkbox" />
+            <i aria-hidden="true"></i>
+          </label>
+          <label class="toggle-row">
+            <span><strong>归档页面</strong><small>关闭时，前台导航不展示归档入口。</small></span>
+            <input v-model="siteSettings.archiveEnabled" type="checkbox" />
+            <i aria-hidden="true"></i>
+          </label>
+          <label class="toggle-row">
+            <span><strong>友链页面</strong><small>关闭时，前台导航不展示友链入口。</small></span>
+            <input v-model="siteSettings.linksEnabled" type="checkbox" />
+            <i aria-hidden="true"></i>
+          </label>
+          <label class="toggle-row">
             <span><strong>我的页面</strong><small>关闭时，前台导航不展示“我的”。</small></span>
             <input v-model="siteSettings.profileEnabled" type="checkbox" />
             <i aria-hidden="true"></i>
@@ -145,6 +160,9 @@ function editableSettings() {
   return buildSiteSettingsPayload({
     registerEnabled: siteSettings.registerEnabled,
     categoriesEnabled: siteSettings.categoriesEnabled,
+    tagsEnabled: siteSettings.tagsEnabled,
+    archiveEnabled: siteSettings.archiveEnabled,
+    linksEnabled: siteSettings.linksEnabled,
     profileEnabled: siteSettings.profileEnabled,
     commentsEnabled: siteSettings.commentsEnabled,
     likeEnabled: siteSettings.likeEnabled,

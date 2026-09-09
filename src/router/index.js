@@ -55,6 +55,18 @@ router.beforeEach(async (to) => {
     await loadSiteSettings().catch(() => {})
     if (!siteSettings.categoriesEnabled) return { name: 'home' }
   }
+  if (to.path === '/tags') {
+    await loadSiteSettings().catch(() => {})
+    if (!siteSettings.tagsEnabled) return { name: 'home' }
+  }
+  if (to.path === '/archive') {
+    await loadSiteSettings().catch(() => {})
+    if (!siteSettings.archiveEnabled) return { name: 'home' }
+  }
+  if (to.path === '/links') {
+    await loadSiteSettings().catch(() => {})
+    if (!siteSettings.linksEnabled) return { name: 'home' }
+  }
   if (to.path === '/about') {
     await loadSiteSettings().catch(() => {})
     if (!siteSettings.profileEnabled) return { name: 'home' }

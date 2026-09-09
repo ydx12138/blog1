@@ -5,6 +5,11 @@ export function fetchLinks() {
   return request('GET', '/api/links')
 }
 
+// 前台登录用户申请友链（走用户 token，默认通过）
+export function applyFriendLink(payload) {
+  return request('POST', '/api/friend-links/apply', payload)
+}
+
 // 后台：获取全部友情链接
 export function adminListLinks() {
   return request('GET', '/api/admin/friend-links', undefined, true)

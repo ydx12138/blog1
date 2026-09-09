@@ -31,6 +31,9 @@ export const site = reactive({
 export const siteSettings = reactive({
   registerEnabled: true,
   categoriesEnabled: true,
+  tagsEnabled: true,
+  archiveEnabled: true,
+  linksEnabled: true,
   profileEnabled: true,
   commentsEnabled: true,
   likeEnabled: true,
@@ -44,6 +47,9 @@ let settingsPromise = null
 function applySiteSettings(data = {}) {
   siteSettings.registerEnabled = data.register_enabled !== false
   siteSettings.categoriesEnabled = data.categories_enabled !== false
+  siteSettings.tagsEnabled = data.tags_enabled !== false
+  siteSettings.archiveEnabled = data.archive_enabled !== false
+  siteSettings.linksEnabled = data.links_enabled !== false
   siteSettings.profileEnabled = data.profile_enabled !== false
   siteSettings.commentsEnabled = data.comments_enabled !== false
   siteSettings.likeEnabled = data.like_enabled !== false
@@ -80,6 +86,9 @@ export function buildSiteSettingsPayload(settings) {
   return {
     register_enabled: settings.registerEnabled,
     categories_enabled: settings.categoriesEnabled,
+    tags_enabled: settings.tagsEnabled,
+    archive_enabled: settings.archiveEnabled,
+    links_enabled: settings.linksEnabled,
     profile_enabled: settings.profileEnabled,
     comments_enabled: settings.commentsEnabled,
     like_enabled: settings.likeEnabled,
