@@ -38,24 +38,24 @@
         </thead>
         <tbody>
           <tr v-for="link in links" :key="link.id">
-            <td>{{ link.id }}</td>
-            <td>
+            <td data-label="ID">{{ link.id }}</td>
+            <td data-label="头像">
               <img v-if="link.logo" class="link-avatar" :src="link.logo" :alt="link.name" />
               <span v-else class="link-avatar link-avatar--placeholder">{{ initial(link.name) }}</span>
             </td>
-            <td class="cell-ellipsis" :title="link.name">{{ link.name }}</td>
-            <td class="cell-ellipsis" :title="link.url">
+            <td data-label="名称" class="cell-ellipsis" :title="link.name">{{ link.name }}</td>
+            <td data-label="链接" class="cell-ellipsis" :title="link.url">
               <a :href="link.url" target="_blank" rel="noopener noreferrer" class="link-url">{{ link.url }}</a>
             </td>
-            <td class="cell-ellipsis" :title="link.description || '-'">{{ link.description || '-' }}</td>
-            <td>{{ link.sort }}</td>
-            <td>
+            <td data-label="描述" class="cell-ellipsis" :title="link.description || '-'">{{ link.description || '-' }}</td>
+            <td data-label="排序">{{ link.sort }}</td>
+            <td data-label="状态">
               <span class="status-pill" :class="link.status === 1 ? 'status-pill--on' : 'status-pill--off'">
                 {{ link.status === 1 ? '已启用' : '已禁用' }}
               </span>
             </td>
-            <td>{{ formatDate(link.created_at) }}</td>
-            <td class="op-cell">
+            <td data-label="创建时间">{{ formatDate(link.created_at) }}</td>
+            <td data-label="操作" class="op-cell">
               <button class="btn-link" @click="openEdit(link)">编辑</button>
               <button class="btn-link btn-link--danger" @click="confirmDelete(link)">删除</button>
             </td>

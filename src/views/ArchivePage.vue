@@ -89,7 +89,7 @@ onMounted(load)
 .archive-list { border-top: 1px solid var(--border-light); }
 .archive-year {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: 32px;
   padding: 28px 0;
   border-bottom: 1px solid var(--border-light);
@@ -120,6 +120,7 @@ onMounted(load)
 }
 
 .archive-items {
+  min-width: 0;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -163,8 +164,11 @@ onMounted(load)
   font-family: var(--font-mono);
 }
 
-@media (max-width: 720px) {
-  .archive-year { grid-template-columns: 1fr; gap: 12px; }
+@media (max-width: 767px) {
+  .archive-year { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .archive-item { flex-wrap: wrap; gap: 8px; }
+  .archive-item__title { white-space: normal; }
+  .archive-item__category { margin-left: 64px; max-width: calc(100% - 64px); }
   .archive-year__head { position: static; text-align: left; }
   .archive-year__title { font-size: 24px; }
 }

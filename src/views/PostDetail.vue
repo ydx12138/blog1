@@ -106,7 +106,10 @@
       <!-- 目录（独立侧栏，位于正文右侧，不挤占正文宽度） -->
       <aside class="post-toc" v-if="article.content_type === 2">
         <div class="post-toc__title">目录</div>
-        <MdCatalog :editorId="previewId" :scrollElement="scrollElement" />
+        <button class="toc-toggle" type="button" :aria-expanded="directoryOpen" aria-controls="post-directory" @click="directoryOpen = !directoryOpen">文章目录 {{ directoryOpen ? '−' : '+' }}</button>
+        <div id="post-directory" class="toc-content" :class="{ 'is-open': directoryOpen }">
+          <MdCatalog :editorId="previewId" :scrollElement="scrollElement" />
+        </div>
       </aside>
     </div>
   </div>
@@ -127,6 +130,8 @@ import 'md-editor-v3/lib/style.css'
 const route = useRoute()
 const router = useRouter()
 const articleId = computed(() => Number(route.params.id))
+const directoryOpen = ref(false)
+watch(articleId, () => { directoryOpen.value = false })
 const { isLoggedIn } = useAuth()
 const previewTheme = ref('light')
 let themeObserver
@@ -274,6 +279,7 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
   grid-template-columns: minmax(0, 720px) 200px;
 }
 .post-main { min-width: 0; }
+.toc-toggle { display: none; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 6px;
@@ -494,11 +500,16 @@ watch(articleId, () => { fetchArticle(); fetchComments() })
 .empty-comments { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 14px; }
 
 /* 窄屏：隐藏目录，主栏占满 */
-@media (max-width: 1040px) {
+@media (max-width: 1279px) {
   .post-grid--with-toc {
     grid-template-columns: minmax(0, 720px);
   }
-  .post-toc { display: none; }
+  .post-toc { display: block; position: static; grid-row: 1; width: 100%; max-height: none; }
+  .post-toc__title { display: none; }
+  .toc-toggle { display: flex; align-items: center; min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); color: var(--text); font: inherit; cursor: pointer; }
+  .toc-content { display: none; max-height: 40dvh; overflow: auto; }
+  .toc-content.is-open { display: block; }
+  .post-grid { gap: 24px; }
 }
 
 @media (max-width: 768px) {

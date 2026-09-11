@@ -5,7 +5,7 @@
         <header class="crop-header">
           <div>
             <h2 id="avatar-crop-title">设置头像</h2>
-            <p>拖动图片调整位置，滚动鼠标滚轮缩放</p>
+            <p>拖动图片调整位置，使用滑块或鼠标滚轮缩放</p>
           </div>
           <button class="close-button" type="button" aria-label="关闭" title="关闭" @click="handleClose">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" /></svg>
@@ -13,9 +13,11 @@
         </header>
 
         <div class="crop-body">
+          <div ref="frameRef" class="crop-frame">
           <div
             ref="stageRef"
             class="crop-stage"
+            :style="{ transform: `scale(${displayScale})` }"
             :class="{ 'has-image': hasImage, dragging: dragging.active }"
           >
             <img
@@ -40,6 +42,10 @@
             ></div>
             <div class="crop-mask" aria-hidden="true"></div>
           </div>
+          </div>
+          <label v-if="hasImage" class="crop-zoom">缩放
+            <input type="range" :min="minimumScale" :max="minimumScale * 6" :step="minimumScale / 100" :value="scale" @input="zoomFromSlider" />
+          </label>
           <input ref="fileInput" class="file-input" type="file" accept="image/*" @change="selectFile" />
           <button class="select-button" type="button" @click="fileInput?.click()">选择图片</button>
         </div>
@@ -56,7 +62,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { uploadImage } from '../api/admin.js'
 import { showError } from '../composables/useNotice.js'
 import { canCloseCropModal, clampCropOffset, coverScale, cropSourceRect } from '../utils/avatarCrop.js'
@@ -74,6 +80,24 @@ const props = defineProps({
 
 const fileInput = ref(null)
 const stageRef = ref(null)
+const frameRef = ref(null)
+const displayScale = ref(1)
+let frameObserver
+watch(frameRef, (frame) => {
+  frameObserver?.disconnect()
+  if (!frame) return
+  frameObserver = new ResizeObserver(([entry]) => {
+    displayScale.value = Math.min(1, entry.contentRect.width / STAGE_SIZE)
+  })
+  frameObserver.observe(frame)
+}, { flush: 'post' })
+
+function zoomFromSlider(event) {
+  const nextScale = Number(event.target.value)
+  const ratio = nextScale / scale.value
+  setOffset({ x: VIEWPORT_SIZE / 2 - (VIEWPORT_SIZE / 2 - offset.x) * ratio, y: VIEWPORT_SIZE / 2 - (VIEWPORT_SIZE / 2 - offset.y) * ratio }, nextScale)
+  scale.value = nextScale
+}
 const imageUrl = ref('')
 const imageSize = reactive({ width: 0, height: 0 })
 const offset = reactive({ x: 0, y: 0 })
@@ -169,8 +193,8 @@ function startDrag(event) {
 function moveDrag(event) {
   if (!dragging.active || dragging.pointerId !== event.pointerId) return
   setOffset({
-    x: dragging.offsetX + event.clientX - dragging.startX,
-    y: dragging.offsetY + event.clientY - dragging.startY,
+    x: dragging.offsetX + (event.clientX - dragging.startX) / displayScale.value,
+    y: dragging.offsetY + (event.clientY - dragging.startY) / displayScale.value,
   })
 }
 
@@ -187,10 +211,10 @@ function scaleAtPointer(event) {
   if (!hasImage.value || !stageRef.value) return
   const stage = stageRef.value.getBoundingClientRect()
   const point = {
-    x: event.clientX - stage.left - VIEWPORT_INSET,
-    y: event.clientY - stage.top - VIEWPORT_INSET,
+    x: (event.clientX - stage.left) / displayScale.value - VIEWPORT_INSET,
+    y: (event.clientY - stage.top) / displayScale.value - VIEWPORT_INSET,
   }
-  const nextScale = Math.min(minimumScale.value * 5, Math.max(minimumScale.value, scale.value * (event.deltaY < 0 ? 1.1 : 0.9)))
+  const nextScale = Math.min(minimumScale.value * 6, Math.max(minimumScale.value, scale.value * (event.deltaY < 0 ? 1.1 : 0.9)))
   if (nextScale === scale.value) return
   const imagePoint = { x: (point.x - offset.x) / scale.value, y: (point.y - offset.y) / scale.value }
   scale.value = nextScale
@@ -248,7 +272,7 @@ function handleClose(afterUpload = false) {
   emit('close')
 }
 
-onBeforeUnmount(resetCrop)
+onBeforeUnmount(() => { frameObserver?.disconnect(); resetCrop() })
 </script>
 
 <style scoped>
@@ -259,8 +283,11 @@ onBeforeUnmount(resetCrop)
 .crop-header p { margin: 6px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.5; }
 .close-button { display: inline-grid; width: 30px; height: 30px; place-items: center; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); cursor: pointer; }
 .close-button:hover { background: var(--tag-bg); color: var(--text); }
-.crop-body { display: grid; justify-items: center; gap: 16px; padding: 24px; }
-.crop-stage { position: relative; width: 320px; height: 320px; max-width: 100%; overflow: hidden; border-radius: var(--radius-sm); background: var(--bg); user-select: none; }
+.crop-body { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 16px; padding: 24px; }
+.crop-frame { width: min(320px, 100%); min-width: 0; aspect-ratio: 1; }
+.crop-stage { position: relative; width: 320px; height: 320px; transform-origin: top left; overflow: hidden; border-radius: var(--radius-sm); background: var(--bg); user-select: none; }
+.crop-zoom { display: flex; align-items: center; gap: 12px; width: min(320px, 100%); font-size: 13px; }
+.crop-zoom input { flex: 1; min-width: 0; height: 44px; accent-color: var(--accent); }
 .crop-image { position: absolute; max-width: none; pointer-events: none; }
 .crop-stage.has-image { background: #15191f; }
 .crop-stage.dragging .crop-image { cursor: grabbing; }
@@ -275,5 +302,5 @@ onBeforeUnmount(resetCrop)
 .primary-button { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
 .primary-button:hover:not(:disabled) { opacity: .9; }
 .primary-button:disabled, .secondary-button:disabled { opacity: .55; cursor: not-allowed; }
-@media (max-width: 420px) { .crop-overlay { padding: 12px; } .crop-header, .crop-body, .crop-footer { padding-left: 16px; padding-right: 16px; } .crop-stage { transform: scale(.86); margin-block: -22px; } }
+@media (max-width: 420px) { .crop-overlay { padding: 12px; } .crop-header, .crop-body, .crop-footer { padding-left: 16px; padding-right: 16px; } }
 </style>

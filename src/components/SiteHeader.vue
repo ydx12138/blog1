@@ -1,7 +1,34 @@
 <template>
+  <header class="mobile-header">
+    <router-link to="/dream" class="mobile-header__title">{{ site.title }}</router-link>
+    <div class="mobile-header__actions">
+      <button class="mobile-icon-button" type="button" :aria-label="themeLabel" @click="toggleTheme">
+        <span aria-hidden="true">{{ isDark ? '☀' : '◐' }}</span>
+      </button>
+      <button v-if="!isLoggedIn" class="mobile-login" type="button" @click="showAuthModal = true">登录</button>
+      <button v-else class="mobile-icon-button" type="button" aria-label="查看个人资料" @click="goToProfile">
+        <img v-if="user?.avatar" class="user-avatar user-avatar-image" :src="user.avatar" :alt="user?.nickname || user?.email" />
+        <span v-else class="user-avatar">{{ userInitial }}</span>
+      </button>
+      <button class="mobile-icon-button" type="button" aria-label="打开导航菜单" :aria-expanded="mobileMenuOpen" @click="toggleMobileMenu">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </header>
+
+  <MobileDrawer v-model:open="mobileMenuOpen" :title="site.title">
+    <nav class="mobile-nav-list" aria-label="站点导航">
+      <router-link v-for="item in navItems" :key="item.path" :to="item.path" class="mobile-nav-link" active-class="mobile-nav-link--active" @click="closeMobileMenu">{{ item.label }}</router-link>
+    </nav>
+    <template #footer>
+      <button class="mobile-action" type="button" @click="toggleTheme">{{ themeLabel }}</button>
+      <button v-if="isLoggedIn" class="mobile-action" type="button" @click="handleLogout">退出登录</button>
+    </template>
+  </MobileDrawer>
+
   <aside class="sidebar">
     <!-- 网站标题 -->
-    <router-link to="/" class="sidebar-title">{{ site.title }}</router-link>
+    <router-link to="/dream" class="sidebar-title">{{ site.title }}</router-link>
 
     <!-- 导航链接 -->
     <nav class="sidebar-nav">
@@ -55,20 +82,22 @@
       </div>
     </div>
 
-    <AuthModal :visible="showAuthModal" @close="showAuthModal = false" />
   </aside>
+  <AuthModal :visible="showAuthModal" @close="showAuthModal = false" />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { site, siteSettings } from '../data/site.js'
 import { useAuth } from '../stores/auth.js'
 import { useTheme } from '../composables/useTheme.js'
 import AuthModal from './AuthModal.vue'
+import MobileDrawer from './MobileDrawer.vue'
 
 const { user, isLoggedIn, refreshUser, logout } = useAuth()
 const router = useRouter()
+const route = useRoute()
 const navItems = computed(() => site.nav.filter((item) => {
   if (item.path === '/categories') return siteSettings.categoriesEnabled
   if (item.path === '/tags') return siteSettings.tagsEnabled
@@ -94,13 +123,21 @@ const userInitial = computed(() => user.value ? (user.value.nickname || user.val
 // ---- 下拉 ----
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
+const mobileMenuOpen = ref(false)
 function toggleDropdown() { dropdownOpen.value = !dropdownOpen.value }
-function goToProfile() { dropdownOpen.value = false; router.push({ name: 'profile' }) }
+function closeMobileMenu() {
+  mobileMenuOpen.value = false
+}
+function toggleMobileMenu() {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
+function goToProfile() { dropdownOpen.value = false; closeMobileMenu(); router.push({ name: 'profile' }) }
 function handleLogout() {
   logout()
   dropdownOpen.value = false
   showAuthModal.value = false
   try { sessionStorage.removeItem('blog-show-auth') } catch {}
+  closeMobileMenu()
   router.replace({ name: 'home' })
 }
 function handleClickOutside(e) { if (dropdownRef.value && !dropdownRef.value.contains(e.target)) dropdownOpen.value = false }
@@ -111,6 +148,8 @@ function handleSessionForcedLogout() {
   showAuthModal.value = false
   router.replace({ name: 'home' })
 }
+
+watch(() => route.fullPath, closeMobileMenu)
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('show-auth-modal', openAuthModal)
@@ -125,6 +164,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.mobile-header { display: none; }
+.mobile-nav-list { display: grid; gap: 4px; }
+.mobile-nav-link { display: block; min-height: 44px; padding: 10px 12px; border-radius: var(--radius); color: var(--text-secondary); }
+.mobile-nav-link:hover, .mobile-nav-link--active { color: var(--accent); background: var(--accent-light); }
+.mobile-action { min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+
 .sidebar {
   position: fixed;
   top: 0; left: 0;
@@ -301,30 +346,13 @@ onUnmounted(() => {
 .dropdown-item:hover { background: var(--tag-bg); }
 .dropdown-item.logout:hover { color: var(--danger); }
 
-/* ===== 移动端 ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    position: sticky; top: 0;
-    width: 100%; height: auto;
-    flex-direction: row; align-items: center; justify-content: space-between;
-    padding: 0 14px; min-height: 48px;
-    border-right: none; border-bottom: 1px solid var(--border-light);
-    backdrop-filter: blur(12px);
-    background: rgba(254, 253, 249, 0.85);
-  }
-  :root[data-theme='dark'] .sidebar { background: rgba(30, 30, 28, 0.88); }
-
-  .sidebar-title { font-size: 16px; margin-bottom: 0; padding: 0; }
-  .sidebar-nav { display: none; }
-  .sidebar-bottom {
-    flex-direction: row; gap: 8px;
-    padding-top: 0; border-top: none;
-  }
-  .theme-toggle { width: auto; height: 30px; }
-  .theme-label { display: none; }
-  .btn-login, .btn-user { width: auto; height: 30px; font-size: 12px; padding: 0 8px; }
-  .user-name { display: none; }
-  .dropdown-menu { bottom: auto; top: calc(100% + 6px); right: 0; left: auto; }
-  @keyframes dropdownUp { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1023px) {
+  .sidebar { display: none; }
+  .mobile-header { position: sticky; top: 0; z-index: 110; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 60px; padding: env(safe-area-inset-top) var(--content-gutter) 0; border-bottom: 1px solid var(--border-light); background: var(--bg); }
+  .mobile-header__title { min-width: 0; overflow-wrap: anywhere; color: var(--heading); font: 700 18px var(--font-serif); }
+  .mobile-header__actions { display: flex; align-items: center; flex-shrink: 0; gap: 2px; }
+  .mobile-icon-button, .mobile-login { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 8px; border: 0; border-radius: var(--radius); background: transparent; color: var(--text); cursor: pointer; font: inherit; }
+  .mobile-icon-button:hover, .mobile-login:hover { color: var(--accent); background: var(--accent-light); }
+  .mobile-login { font-size: 13px; }
 }
 </style>

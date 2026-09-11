@@ -1,0 +1,33 @@
+.admin-sidebar { overflow-y: auto; }
+.app-inner .admin-layout .filter-bar { flex-wrap: wrap; }
+.app-inner .admin-layout .filter-bar input { min-width: 0; }
+.app-inner .admin-layout .pagination { flex-wrap: wrap; }
+.app-inner .admin-layout .page-header { gap: 16px; }
+.app-inner .admin-layout .data-table a { overflow-wrap: anywhere; }
+
+@media (max-width: 767px) {
+  .app-inner .admin-layout .admin-main .table-scroll { overflow: visible; background: transparent; }
+  .app-inner .admin-layout .admin-main .data-table { display: block; width: 100%; min-width: 0; }
+  .app-inner .admin-layout .data-table colgroup { display: none; }
+  .app-inner .admin-layout .data-table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .app-inner .admin-layout .data-table tbody { display: grid; gap: 16px; }
+  .app-inner .admin-layout .data-table tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-card); }
+  .app-inner .admin-layout .admin-main .table-scroll .data-table td[data-label] { display: block; width: auto; min-width: 0; max-width: none; padding: 0; border: 0; overflow: visible; white-space: normal; overflow-wrap: anywhere; font-size: 14px; }
+  .app-inner .admin-layout .data-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 4px; font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+  .app-inner .admin-layout .data-table td:is([data-label='标题'], [data-label='名称'], [data-label='昵称']) { grid-column: 1 / -1; order: -3; font: 600 18px/1.5 var(--font-serif) !important; color: var(--heading); }
+  .app-inner .admin-layout .data-table td:is([data-label='内容'], [data-label='描述'], [data-label='邮箱'], [data-label='链接'], [data-label='文章'], [data-label='操作']) { grid-column: 1 / -1; }
+  .app-inner .admin-layout .admin-main .table-scroll .data-table td[data-label='操作'] { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .app-inner .admin-layout .data-table td[data-label='操作']::before { display: none; }
+  .app-inner .admin-layout .data-table :is(.cover-thumb, .category-cover) { width: 88px; height: 56px; object-fit: cover; }
+  .app-inner .admin-layout .data-table .article-title { white-space: normal; }
+  .app-inner .admin-layout .admin-main .drag-handle { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+  .app-inner .admin-layout .admin-main :is(.btn-sm, .btn-link, .btn-primary, .btn-secondary, .page-btn, .toggle-btn, .save-button, .avatar-button) { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .app-inner .admin-layout .admin-main :is(.search-input, .status-select) { min-height: 44px; font-size: 16px; }
+  .app-inner .admin-layout .filter-bar .search-input { flex-basis: 100%; }
+  .app-inner .admin-layout .page-header { flex-wrap: wrap; }
+  .app-inner .admin-layout .page-title { font-size: 24px; }
+  .app-inner .admin-layout .field-grid { grid-template-columns: minmax(0, 1fr); }
+  .app-inner .admin-layout .field-wide { grid-column: auto; }
+  .app-inner .admin-layout .form-footer { align-items: stretch; flex-direction: column; }
+  .app-inner .admin-layout .panel-heading, .app-inner .admin-layout .trend-summary { flex-wrap: wrap; }
+}

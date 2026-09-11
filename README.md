@@ -36,6 +36,8 @@ npm install
 npm run dev
 ```
 
+前台和管理后台均支持手机、平板与桌面视口。手机端使用抽屉导航，后台数据列表转换为卡片布局；桌面端保留侧栏和完整表格。
+
 开发服务器启动后，按终端显示的地址访问即可。
 
 ## 构建部署
@@ -43,6 +45,8 @@ npm run dev
 ```bash
 npm run build
 ```
+
+响应式验收覆盖 320、375、768、1024、1440px 视口，记录见 `docs/superpowers/plans/2026-09-10-blog-responsive-qa.md`。
 
 构建产物位于 `dist` 目录。也可以使用项目内的 Dockerfile 构建静态站点镜像：
 

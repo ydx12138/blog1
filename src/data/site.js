@@ -40,6 +40,7 @@ export const siteSettings = reactive({
   userAccessTokenExpireMinutes: 15,
   userRefreshTokenExpireMinutes: 10080,
   adminTokenExpireMinutes: 10080,
+  dreamImages: [],
 })
 
 let settingsPromise = null
@@ -66,6 +67,7 @@ function applySiteSettings(data = {}) {
     siteSettings.userRefreshTokenExpireMinutes = data.user_token_expire_minutes
   }
   if (Number.isInteger(data.admin_token_expire_minutes)) siteSettings.adminTokenExpireMinutes = data.admin_token_expire_minutes
+  siteSettings.dreamImages = Array.isArray(data.dream_images) ? data.dream_images.filter(Boolean) : []
 }
 
 export function loadSiteSettings() {

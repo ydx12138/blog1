@@ -17,12 +17,12 @@
       <thead><tr><th>ID</th><th>邮箱</th><th>昵称</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="u in users" :key="u.id">
-          <td>{{ u.id }}</td>
-          <td :title="u.email">{{ u.email }}</td>
-          <td :title="u.nickname">{{ u.nickname }}</td>
-          <td><span :class="['badge', u.status === 1 ? 'badge-ok' : 'badge-ban']">{{ u.status === 1 ? '正常' : '封禁' }}</span></td>
-          <td>{{ u.created_at }}</td>
-          <td class="actions">
+          <td data-label="ID">{{ u.id }}</td>
+          <td data-label="邮箱" :title="u.email">{{ u.email }}</td>
+          <td data-label="昵称" :title="u.nickname">{{ u.nickname }}</td>
+          <td data-label="状态"><span :class="['badge', u.status === 1 ? 'badge-ok' : 'badge-ban']">{{ u.status === 1 ? '正常' : '封禁' }}</span></td>
+          <td data-label="注册时间">{{ u.created_at }}</td>
+          <td data-label="操作" class="actions">
             <button v-if="u.status === 1" @click="ban(u.id)" class="btn-sm btn-warn">封禁</button>
             <button v-else @click="unban(u.id)" class="btn-sm btn-green">解封</button>
             <button @click="del(u.id)" class="btn-sm btn-danger">删除</button>

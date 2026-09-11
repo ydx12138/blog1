@@ -29,6 +29,8 @@
   /* Spacing - 统一垂直节奏，各页面复用同一套刻度 */
   --max-width: 720px;
   --sidebar-width: 200px;
+  --content-gutter: clamp(16px, 4vw, 48px);
+  --touch-target: 44px;
   --page-top: 40px;
   --space-1: 4px;
   --space-2: 8px;
@@ -155,6 +157,7 @@ img {
 #app {
   min-height: 100vh;
   display: flex;
+  min-width: 0;
 }
 
 .app-inner {
@@ -172,9 +175,44 @@ img {
   min-width: 0;
 }
 
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+pre,
+table {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+  overflow-wrap: normal;
+}
+
+body {
+  overflow-wrap: anywhere;
+}
+
+.main-content--admin { padding: 0; }
+.main-content--standalone { padding: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+@media (max-width: 1023px) {
+  .app-inner.has-sidebar { flex-direction: column; padding-left: 0; }
+  .main-content { padding: 0 var(--content-gutter); }
+  .main-content--admin { padding: 0; }
+  html { scroll-padding-top: 76px; }
+}
+
 /* ===== Responsive ===== */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  :root { --content-gutter: 16px; --page-top: 24px; }
   body { font-size: 15px; line-height: 1.65; }
   .app-inner.has-sidebar { padding-left: 0; }
-  .main-content { padding: 0 16px; }
+  .main-content { padding: 0 var(--content-gutter); }
+  .main-content--admin { padding: 0; }
 }

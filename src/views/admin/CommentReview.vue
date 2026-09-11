@@ -22,16 +22,16 @@
       <thead><tr><th>ID</th><th>文章</th><th>用户</th><th>内容</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="c in comments" :key="c.id">
-          <td>{{ c.id }}</td>
-          <td class="article-cell">
+          <td data-label="ID">{{ c.id }}</td>
+          <td data-label="文章" class="article-cell">
             <span class="article-title" :title="c.article_title">{{ c.article_title }}</span>
             <span class="article-id">#{{ c.article_id }}</span>
           </td>
-          <td :title="c.nickname">{{ c.nickname }}</td>
-          <td class="content-cell" :title="c.content">{{ c.content }}</td>
-          <td><span :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></td>
-          <td>{{ formatDate(c.created_at) }}</td>
-          <td class="actions">
+          <td data-label="用户" :title="c.nickname">{{ c.nickname }}</td>
+          <td data-label="内容" class="content-cell" :title="c.content">{{ c.content }}</td>
+          <td data-label="状态"><span :class="statusBadge(c.status)">{{ statusLabel(c.status) }}</span></td>
+          <td data-label="时间">{{ formatDate(c.created_at) }}</td>
+          <td data-label="操作" class="actions">
             <button
               v-for="s in [1, 3]"
               :key="s"

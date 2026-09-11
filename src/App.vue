@@ -1,8 +1,8 @@
 <template>
-  <div class="app-inner" :class="{ 'has-sidebar': !isAdminRoute }">
-    <SiteHeader v-if="!isAdminRoute" />
-    <main class="main-content">
-      <template v-if="isAdminRoute">
+  <div class="app-inner" :class="{ 'has-sidebar': !isAdminRoute && !isStandaloneRoute }">
+    <SiteHeader v-if="!isAdminRoute && !isStandaloneRoute" />
+    <main class="main-content" :class="{ 'main-content--admin': isAdminRoute, 'main-content--standalone': isStandaloneRoute }">
+      <template v-if="isAdminRoute || isStandaloneRoute">
         <router-view />
       </template>
       <template v-else>
@@ -13,8 +13,8 @@
         </div>
         <FrontendLayout>
           <router-view />
-          <SiteFooter />
         </FrontendLayout>
+        <SiteFooter />
       </template>
     </main>
     <NoticeCenter />
@@ -33,6 +33,7 @@ import FrontendLayout from './layouts/FrontendLayout.vue'
 
 const route = useRoute()
 const isAdminRoute = computed(() => route.path.startsWith('/admin'))
+const isStandaloneRoute = computed(() => route.meta.standalone === true)
 const searchKeyword = ref('')
 const searchResults = ref([])
 const searchLoading = ref(false)
@@ -120,7 +121,8 @@ provide('homeSearch', {
 
 .global-search-shell__inner { width: min(100%, 720px); }
 
-@media (max-width: 1040px) {
-  .global-search-shell { display: none; }
+@media (max-width: 1023px) {
+  .global-search-shell { width: min(100%, 760px); padding-top: 16px; }
+  .global-search-shell__inner { width: 100%; }
 }
 </style>

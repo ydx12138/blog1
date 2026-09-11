@@ -7,13 +7,13 @@
       <thead><tr><th>ID</th><th>封面</th><th>标题</th><th>创建时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="a in drafts" :key="a.id" :class="{ 'row-link': a.status === 2 }" @click="a.status === 2 && openPost(a.id)">
-          <td>{{ a.id }}</td>
-          <td class="cover-cell">
+          <td data-label="ID">{{ a.id }}</td>
+          <td data-label="封面" class="cover-cell">
             <img v-if="a.cover" :src="a.cover" class="cover-thumb" @error="$event.target.style.display='none'" />
           </td>
-          <td class="title-cell" :title="a.title">{{ a.title }}</td>
-          <td>{{ formatDate(a.created_at) }}</td>
-          <td class="actions" @click.stop>
+          <td data-label="标题" class="title-cell" :title="a.title">{{ a.title }}</td>
+          <td data-label="创建时间">{{ formatDate(a.created_at) }}</td>
+          <td data-label="操作" class="actions" @click.stop>
             <router-link :to="`/admin/articles/${a.id}/edit`" class="btn-sm">编辑</router-link>
             <button @click="doPublish(a.id)" class="btn-sm btn-green">发布</button>
             <button @click="doDelete(a.id)" class="btn-sm btn-danger">删除</button>

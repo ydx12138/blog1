@@ -25,17 +25,17 @@
       <thead><tr><th>ID</th><th>封面</th><th>标题</th><th>分类</th><th>浏览</th><th>点赞</th><th>评论</th><th>发布时间</th><th>操作</th></tr></thead>
       <tbody>
         <tr v-for="a in articles" :key="a.id">
-          <td>{{ a.id }}</td>
-          <td class="cover-cell">
+          <td data-label="ID">{{ a.id }}</td>
+          <td data-label="封面" class="cover-cell">
             <img v-if="a.cover" :src="a.cover" class="cover-thumb" @error="$event.target.style.display='none'" />
           </td>
-          <td class="title-cell" :title="a.title">{{ a.title }}</td>
-          <td :title="a.Category?.name || '-'">{{ a.Category?.name || '-' }}</td>
-          <td>{{ a.view_count }}</td>
-          <td>{{ a.like_count }}</td>
-          <td>{{ a.comment_count }}</td>
-          <td>{{ formatDate(a.publish_time || a.created_at) }}</td>
-          <td class="actions">
+          <td data-label="标题" class="title-cell" :title="a.title">{{ a.title }}</td>
+          <td data-label="分类" :title="a.Category?.name || '-'">{{ a.Category?.name || '-' }}</td>
+          <td data-label="浏览">{{ a.view_count }}</td>
+          <td data-label="点赞">{{ a.like_count }}</td>
+          <td data-label="评论">{{ a.comment_count }}</td>
+          <td data-label="发布时间">{{ formatDate(a.publish_time || a.created_at) }}</td>
+          <td data-label="操作" class="actions">
             <router-link :to="`/admin/articles/${a.id}/preview`" class="btn-sm">浏览</router-link>
             <router-link :to="`/admin/articles/${a.id}/edit`" class="btn-sm">编辑</router-link>
             <button @click="deleteArticle(a.id)" class="btn-sm btn-danger">删除</button>

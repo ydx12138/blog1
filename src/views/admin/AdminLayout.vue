@@ -1,5 +1,20 @@
 <template>
   <div class="admin-layout">
+    <header class="admin-topbar">
+      <button type="button" class="admin-menu-button" :aria-expanded="menuOpen" aria-label="打开管理导航" @click="menuOpen = true">☰</button>
+      <strong>{{ currentTitle }}</strong>
+      <router-link to="/admin/articles/new">新建文章</router-link>
+    </header>
+    <MobileDrawer v-model:open="menuOpen" title="博客管理">
+      <nav class="admin-nav" aria-label="管理导航">
+        <router-link v-for="item in menuItems" :key="item.path" :to="item.path" class="nav-item" exact-active-class="nav-active" @click="menuOpen = false">{{ item.title }}</router-link>
+      </nav>
+      <template #footer>
+        <span>{{ adminUser?.nickname || adminUser?.username }}</span>
+        <button class="btn-theme" type="button" @click="toggleTheme">{{ isDark ? '亮色模式' : '暗色模式' }}</button>
+        <button class="btn-logout" type="button" @click="handleLogout">退出</button>
+      </template>
+    </MobileDrawer>
     <aside class="admin-sidebar">
       <router-link to="/admin" class="admin-logo">Blog Admin</router-link>
       <router-link to="/admin/articles/new" class="btn-new-article">+ 新建文章</router-link>
@@ -29,12 +44,27 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../../stores/auth.js'
 import { useConfirm } from '../../composables/useConfirm.js'
 import { useTheme } from '../../composables/useTheme.js'
 import ConfirmModal from '../../components/ConfirmModal.vue'
+import MobileDrawer from '../../components/MobileDrawer.vue'
+
+const menuOpen = ref(false)
+const route = useRoute()
+const menuItems = [
+  { path: '/admin', title: '数据面板' },
+  { path: '/admin/articles', title: '文章管理' },
+  { path: '/admin/drafts', title: '草稿箱' },
+  { path: '/admin/comments', title: '评论审核' },
+  { path: '/admin/users', title: '用户管理' },
+  { path: '/admin/site', title: '网站管理' },
+  { path: '/admin/categories', title: '分类管理' },
+  { path: '/admin/links', title: '友链管理' },
+]
+const currentTitle = computed(() => menuItems.find((item) => item.path === route.path)?.title || '博客管理')
 
 const { adminUser, isAdmin, adminLogout } = useAuth()
 const router = useRouter()
@@ -48,12 +78,14 @@ onMounted(() => {
 })
 
 function handleLogout() {
+  menuOpen.value = false
   adminLogout()
   router.push('/admin/login')
 }
 </script>
 
 <style scoped>
+.admin-topbar { display: none; }
 .admin-layout { display: flex; min-height: 100vh; }
 .admin-sidebar { width: 220px; background: var(--bg-card); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
 .admin-logo { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--heading); text-decoration: none; display: block; }
@@ -69,10 +101,14 @@ function handleLogout() {
 .btn-theme:hover { color: var(--accent); border-color: var(--accent-border); background: var(--accent-light); }
 .btn-logout:hover { color: #dc2626; border-color: #dc2626; }
 .admin-main { margin-left: 220px; flex: 1; padding: 32px 40px; min-width: 0; }
-@media (max-width: 768px) {
-  .admin-sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
-  .admin-logo { margin-bottom: 0; font-size: 16px; }
-  .admin-nav { flex-direction: row; gap: 8px; }
-  .admin-main { margin-left: 0; padding: 16px; }
+@media (max-width: 1023px) {
+  .admin-layout { flex-direction: column; }
+  .admin-sidebar { display: none; }
+  .admin-topbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: env(safe-area-inset-top) var(--content-gutter) 0; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .admin-topbar strong { flex: 1; min-width: 0; font-family: var(--font-serif); }
+  .admin-topbar a { flex-shrink: 0; padding: 10px 0; font-size: 13px; }
+  .admin-menu-button { width: 44px; height: 44px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); background: transparent; cursor: pointer; }
+  .admin-main { margin-left: 0; padding: 24px var(--content-gutter); }
+  .nav-item, .btn-theme, .btn-logout { min-height: 44px; }
 }
 </style>

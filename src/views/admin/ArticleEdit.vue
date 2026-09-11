@@ -49,7 +49,7 @@
           <Editor v-model="form.content" :defaultConfig="richEditorConfig" mode="default" @onCreated="onRichCreated" />
         </div>
         <div v-else class="markdown-editor">
-          <MdEditor v-model="form.content" language="zh-CN" @onUploadImg="onMdUploadImg" />
+          <MdEditor v-model="form.content" :preview="!isMobile" language="zh-CN" @onUploadImg="onMdUploadImg" />
         </div>
       </div>
 
@@ -174,6 +174,7 @@ import { getCategories } from '../../api/categories.js'
 import { useAuth } from '../../stores/auth.js'
 import { showError } from '../../composables/useNotice.js'
 import ImageUpload from '../../components/ImageUpload.vue'
+import { useMobileViewport } from '../../composables/useMobileViewport.js'
 
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
@@ -183,6 +184,7 @@ import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 
 const route = useRoute()
+const isMobile = useMobileViewport()
 const router = useRouter()
 const { isAdmin } = useAuth()
 

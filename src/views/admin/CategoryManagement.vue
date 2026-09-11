@@ -45,7 +45,7 @@
             }"
             :data-category-id="category.id"
           >
-            <td class="drag-cell">
+            <td data-label="调整顺序" class="drag-cell">
               <span
                 class="drag-handle"
                 :class="{ disabled: keyword }"
@@ -53,15 +53,15 @@
                 @pointerdown.prevent="startPointerDrag(category.id, $event)"
               >&#8942;&#8942;</span>
             </td>
-            <td><img class="category-cover" :src="category.cover || '/default-category-cover.jpg'" :alt="`${category.name} 封面`" /></td>
-            <td>{{ category.id }}</td>
-            <td class="cell-ellipsis" :title="category.name">{{ category.name }}</td>
-            <td class="cell-ellipsis" :title="category.description || '-'">{{ category.description || '-' }}</td>
-            <td>{{ category.sort }}</td>
-            <td>{{ category.article_count }}</td>
-            <td>{{ formatDate(category.created_at) }}</td>
-            <td>{{ formatDate(category.updated_at) }}</td>
-            <td class="actions">
+            <td data-label="封面"><img class="category-cover" :src="category.cover || '/default-category-cover.jpg'" :alt="`${category.name} 封面`" /></td>
+            <td data-label="ID">{{ category.id }}</td>
+            <td data-label="名称" class="cell-ellipsis" :title="category.name">{{ category.name }}</td>
+            <td data-label="描述" class="cell-ellipsis" :title="category.description || '-'">{{ category.description || '-' }}</td>
+            <td data-label="排序">{{ category.sort }}</td>
+            <td data-label="文章数">{{ category.article_count }}</td>
+            <td data-label="创建时间">{{ formatDate(category.created_at) }}</td>
+            <td data-label="更新时间">{{ formatDate(category.updated_at) }}</td>
+            <td data-label="操作" class="actions">
               <button class="btn-sm" @click="openEdit(category)">修改</button>
               <button class="btn-sm btn-danger" @click="openDelete(category)">删除</button>
             </td>

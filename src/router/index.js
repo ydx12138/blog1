@@ -4,6 +4,7 @@ import { loadSiteSettings, siteSettings } from '../data/site.js'
 const routes = [
   // === 用户端 ===
   { path: '/', name: 'home', component: () => import('../views/HomePage.vue') },
+  { path: '/dream', name: 'dream', component: () => import('../views/DreamPage.vue'), meta: { standalone: true } },
   { path: '/posts', redirect: '/' },
   { path: '/posts/:id', name: 'post-detail', component: () => import('../views/PostDetail.vue') },
   { path: '/search', name: 'search', component: () => import('../views/SearchResultsPage.vue') },
